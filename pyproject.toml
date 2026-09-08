@@ -1,0 +1,16 @@
+[project]
+name = "investments"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "mstarpy>=11.0.1",
+    "numpy>=2.5.3",
+    "pandas>=3.0.5",
+    "requests>=2.34.2",
+    "scikit-learn>=1.9.0",
+    "scipy>=1.18.1",
+    "yfinance>=1.7.0",
+]

@@ -1,0 +1,334 @@
+<script>
+/* ---- equations -------------------------------------------------------------
+   Each .tex / .tex-block holds readable ASCII plus a data-tex LaTeX source. If
+   KaTeX loads we swap in its HTML output, styled by the KaTeX CSS inlined in the
+   head with its webfonts as data: URIs -- the CSP blocks external stylesheets and
+   font files, so neither can be fetched. If the script does not load, the ASCII
+   fallback stays exactly as it is. */
+function renderMath(){
+  if(!window.katex) return;
+  document.querySelectorAll('.tex,.tex-block').forEach(el=>{
+    const tex=el.dataset.tex; if(!tex) return;
+    try{
+      el.innerHTML=katex.renderToString(tex,{output:'html',throwOnError:true,
+        displayMode:el.classList.contains('tex-block')});
+      el.classList.add('rendered');
+    }catch(e){ /* leave the ASCII fallback in place */ }
+  });
+}
+if(document.readyState!=='loading') renderMath();
+else document.addEventListener('DOMContentLoaded',renderMath);
+window.addEventListener('load',renderMath);   // defer'd katex may land after DCL
+
+const ALL=JSON.parse(document.getElementById('data').textContent);
+const D=ALL.mc, FD=ALL.funds, ES=ALL.estim;
+const PORTS=Object.keys(D.portfolios);
+const PL={"58yo 60/40":"58yo 60/40","64yo 25/75":"64yo 25/75"};
+const ML={"Hand-set":"Hand-set","HRP-in-sleeves":"HRP-in-sleeves","NCO-in-sleeves":"NCO-in-sleeves",
+          "HRP unconstrained":"HRP unconstrained","NCO min-var unconstrained":"NCO min-var unconstr."};
+const METHODS=Object.keys(ML);
+const ENGINES=[{k:'fwd-mvn',n:'forward 6/3.3, net',v:'--s1'},
+               {k:'bootstrap',n:'bootstrap',v:'--s2'},
+               {k:'hist-mvn',n:'historical',v:'--s3'}];
+const CS=getComputedStyle(document.documentElement); const cv=n=>CS.getPropertyValue(n).trim();
+const SH='http://www.w3.org/2000/svg';
+const el=(t,a={})=>{const e=document.createElementNS(SH,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const num=(x,d=2)=>Number(x).toFixed(d);
+const pc=(x,d=2)=>num(x,d)+'%';
+const eur=v=>'\u20ac'+Math.round(v).toLocaleString('en-GB');
+const eur2=v=>'\u20ac'+Number(v).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+const tip=document.getElementById('tip');
+function showTip(ev,h){tip.innerHTML=h;tip.style.opacity=1;
+  const r=tip.getBoundingClientRect();let x=ev.clientX+14,y=ev.clientY-r.height-10;
+  if(x+r.width>innerWidth-8)x=ev.clientX-r.width-14; if(y<8)y=ev.clientY+16;
+  tip.style.left=x+'px';tip.style.top=y+'px';}
+function hideTip(){tip.style.opacity=0;}
+function bind(n,h){n.addEventListener('mousemove',e=>showTip(e,h));n.addEventListener('mouseleave',hideTip);}
+
+/* tiles */
+(function(){
+  const a=D.portfolios[PORTS[0]].methods, con=['Hand-set','HRP-in-sleeves','NCO-in-sleeves'];
+  const fwd=con.map(m=>a[m].engines['fwd-mvn'].cagr_pct['50']);
+  const ms=Math.max(...fwd)-Math.min(...fwd);
+  const h=a['Hand-set'].engines, eng=ENGINES.map(e=>h[e.k].cagr_pct['50']);
+  const es=Math.max(...eng)-Math.min(...eng);
+  const t=[
+    {v:num(ms)+' pp',l:'Spread across the three <b>constrained weighting methods</b>, 58yo, forward engine, net of charges.',f:'method choice',c:'accent'},
+    {v:num(es)+' pp',l:'Spread across the three <b>return engines</b>, for one identical set of weights.',f:Math.round(es/ms)+'× larger',c:'flag'},
+    {v:num(h['fwd-mvn'].real_received_x['50'])+'×',l:'Median <b>real</b> total received — withdrawals plus final value, 58yo, after 2% inflation.',f:'of which '+num(h['fwd-mvn'].withdrawn_x['50'])+'× taken out along the way',c:''},
+    {v:num(h['fwd-mvn'].p_real_loss,1)+'%',l:'Chance the 58yo <b>loses purchasing power</b> across the whole plan, withdrawals included.',f:'64yo: '+num(D.portfolios[PORTS[1]].methods['Hand-set'].engines['fwd-mvn'].p_real_loss,1)+'%',c:''}];
+  document.getElementById('tiles').innerHTML=t.map(x=>
+    `<div class="tile ${x.c}"><div class="val">${x.v}</div><div class="lab">${x.l}</div><div class="foot">${x.f}</div></div>`).join('');
+})();
+
+function legend(id,items){document.getElementById(id).innerHTML=items.map(i=>
+  `<span><i class="swatch" style="background:${i.c}"></i>${i.n}</span>`).join('');}
+legend('lg-engine',ENGINES.map(e=>({n:e.n,c:cv(e.v)})));
+legend('lg-port',PORTS.map((p,i)=>({n:PL[p],c:cv(i?'--s2':'--s1')})));
+legend('lg-fan',[{n:'5\u201395 pct',c:cv('--fan-1')},{n:'25\u201375 pct',c:cv('--fan-2')},{n:'median path',c:cv('--fan-3')}]);
+
+/* estimator-precision table */
+(function(){
+  let h=`<table><thead><tr><th>Asset</th><th>μ̂</th><th>SE(μ̂)</th><th>rel.</th>
+    <th>σ̂</th><th>SE(σ̂)</th><th>rel.</th><th>95% CI on μ</th></tr></thead><tbody>`;
+  ES.rows.forEach(r=>{
+    h+=`<tr><td>${r.asset}</td><td>${pc(r.mu)}</td><td>${pc(r.se_mu)}</td>
+      <td class="${r.rel_mu>100?'neg':''}">${r.rel_mu}%</td>
+      <td>${pc(r.sd)}</td><td>${pc(r.se_sd)}</td><td>${r.rel_sd}%</td>
+      <td>[${pc(r.ci_lo)}, ${pc(r.ci_hi)}]</td></tr>`;});
+  document.getElementById('estim-table').innerHTML=h+'</tbody></table>';
+})();
+
+/* fund cards */
+(function(){
+  const cards=PORTS.map(p=>{
+    const pl=FD.plans[p], w=pl.weights_pct;
+    const seg=FD.order.map((k,i)=>{
+      const col=FD.funds[k].sleeve==='rv'?cv('--s1'):cv('--s3');
+      return `<i style="width:${w[k]}%;background:${col};opacity:${1-i*0.11}"></i>`;}).join('');
+    let rows=FD.order.map(k=>{
+      const f=FD.funds[k];
+      return `<tr><td>${f.en}</td><td>${num(w[k],1)}%</td><td>${eur(pl.initial_eur[k])}</td>
+        <td>${eur2(pl.monthly_eur[k])}</td><td>${num(f.ter,2)}%</td>
+        <td style="font-size:.78rem">${f.isin}</td></tr>`;}).join('');
+    return `<div class="fundcard">
+      <h3>${PL[p]}</h3>
+      <div class="meta">${num(pl.rv_pct,0)}% equity · ${num(pl.rf_pct,0)}% bonds · weighted ongoing charge ${num(pl.ter_pct,3)}%/yr</div>
+      <div class="bar">${seg}</div>
+      <div class="tablewrap" style="box-shadow:none;border:none;margin-top:4px">
+      <table style="min-width:520px"><thead><tr><th>Fund</th><th>Weight</th><th>Of \u20ac20,000</th>
+        <th>Of \u20ac600/mo</th><th>Charge</th><th>ISIN</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;});
+  document.getElementById('fund-cards').innerHTML=cards.join('');
+})();
+
+/* per-method weights matrix */
+(function(){
+  let h='';
+  PORTS.forEach(p=>{
+    h+=`<table style="min-width:620px;margin-bottom:26px"><thead><tr><th>${PL[p]}</th>`;
+    METHODS.forEach(m=>{h+=`<th>${ML[m]}</th>`;});
+    h+='</tr></thead><tbody>';
+    FD.order.forEach(k=>{
+      h+=`<tr><td>${FD.funds[k].en}</td>`;
+      METHODS.forEach(m=>{
+        const v=ALL.funds.method_weights[p][m][k];
+        h+=`<td style="${v===0?'opacity:.35':''}">${num(v,1)}</td>`;});
+      h+='</tr>';});
+    h+=`<tr class="group"><td>Total equity</td>`;
+    METHODS.forEach(m=>{
+      const mw=ALL.funds.method_weights[p][m];
+      const t=['World','EM','SmallCap'].reduce((a,k)=>a+mw[k],0);
+      h+=`<td style="text-align:right">${num(t,1)}</td>`;});
+    h+='</tr></tbody></table>';});
+  document.getElementById('weights-table').innerHTML=h;
+})();
+
+/* FIG 1 */
+function methodPanel(port){
+  const M=D.portfolios[port].methods;
+  const W=520,padL=190,padR=54,padT=30,padB=40,rowH=54,barH=12,gap=3;
+  const H=padT+METHODS.length*rowH+padB, maxV=8.0;
+  const x=v=>padL+(v/maxV)*(W-padL-padR);
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img',
+    'aria-label':`Median annualised return by method and engine, ${PL[port]}`});
+  for(let g=0;g<=8;g+=2){
+    svg.appendChild(el('line',{x1:x(g),x2:x(g),y1:padT-8,y2:H-padB,stroke:cv('--rule-2')}));
+    const t=el('text',{x:x(g),y:H-padB+17,fill:cv('--ink-3'),'font-size':10,'text-anchor':'middle'});
+    t.textContent=g+' %';svg.appendChild(t);}
+  const ttl=el('text',{x:padL,y:14,fill:cv('--ink'),'font-size':11,'font-weight':600});
+  ttl.textContent=PL[port];svg.appendChild(ttl);
+  METHODS.forEach((m,i)=>{
+    const md=M[m],y0=padT+i*rowH+6;
+    const lab=el('text',{x:padL-12,y:y0+(3*(barH+gap))/2+1,fill:cv('--ink'),'font-size':10.5,'text-anchor':'end'});
+    lab.textContent=ML[m].replace(' unconstrained','').replace(' unconstr.','');
+    svg.appendChild(lab);
+    if(m.includes('unconstrained')){
+      const s=el('text',{x:padL-12,y:y0+(3*(barH+gap))/2+13,fill:cv('--ink-3'),'font-size':8.5,'text-anchor':'end'});
+      s.textContent='unconstrained · '+num(md.equity_pct,1)+'% equity';svg.appendChild(s);}
+    ENGINES.forEach((e,j)=>{
+      const v=md.engines[e.k].cagr_pct['50'],p5=md.engines[e.k].cagr_pct['5'];
+      const yy=y0+j*(barH+gap),w=Math.max(x(Math.max(v,0))-x(0),1.5);
+      const r=el('rect',{x:x(0),y:yy,width:w,height:barH,rx:3,fill:cv(e.v),
+        stroke:cv('--surface'),'stroke-width':2,class:'hit'});
+      bind(r,`<b>${ML[m]}</b><br>${PL[port]}<br>engine ${e.n}<br>median <b>${pc(v)}</b> · p5 ${pc(p5)}<br>vol ${pc(md.ann_vol_pct,1)} · equity ${num(md.equity_pct,1)}% · charge ${num(md.fee_pct,3)}%`);
+      svg.appendChild(r);
+      const vl=el('text',{x:x(Math.max(v,0))+7,y:yy+barH-2.5,fill:cv('--ink-2'),'font-size':9.5});
+      vl.textContent=num(v)+' %';svg.appendChild(vl);});});
+  svg.appendChild(el('line',{x1:x(0),x2:x(0),y1:padT-8,y2:H-padB,stroke:cv('--rule')}));
+  const d=document.createElement('div');d.className='plot';d.appendChild(svg);return d;
+}
+PORTS.forEach(p=>document.getElementById('fig-methods').appendChild(methodPanel(p)));
+
+/* FIG 2 */
+(function(){
+  const W=880,padL=228,padR=64,padT=30,padB=42,rowH=30,gg=34;
+  const rows=[];PORTS.forEach((p,gi)=>METHODS.forEach(m=>rows.push({p,m,gi})));
+  const yOf=i=>padT+i*rowH+rows[i].gi*gg+rowH/2;
+  const H=padT+rows.length*rowH+(PORTS.length-1)*gg+padB;
+  const x=v=>padL+(v/10)*(W-padL-padR);
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img',
+    'aria-label':'5th to 95th percentile annualised return by method, forward engine'});
+  for(let g=0;g<=10;g+=2){
+    svg.appendChild(el('line',{x1:x(g),x2:x(g),y1:padT-10,y2:H-padB,stroke:cv('--rule-2')}));
+    const t=el('text',{x:x(g),y:H-padB+17,fill:cv('--ink-3'),'font-size':10,'text-anchor':'middle'});
+    t.textContent=g+' %';svg.appendChild(t);}
+  let last=null;
+  rows.forEach((r,i)=>{
+    const md=D.portfolios[r.p].methods[r.m],e=md.engines['fwd-mvn'].cagr_pct;
+    const y=yOf(i),col=cv(r.p===PORTS[0]?'--s1':'--s2');
+    if(r.p!==last){
+      const g=el('text',{x:16,y:y-rowH/2-13,fill:cv('--ink-3'),'font-size':9,'letter-spacing':'.1em','font-weight':500});
+      g.textContent=PL[r.p].toUpperCase();svg.appendChild(g);
+      svg.appendChild(el('line',{x1:16,x2:W-padR,y1:y-rowH/2-8,y2:y-rowH/2-8,stroke:cv('--rule')}));
+      last=r.p;}
+    const lab=el('text',{x:padL-14,y:y+3.5,fill:cv('--ink'),'font-size':10.5,'text-anchor':'end'});
+    lab.textContent=ML[r.m];svg.appendChild(lab);
+    const g=el('g',{class:'hit'});
+    g.appendChild(el('line',{x1:x(e['5']),x2:x(e['95']),y1:y,y2:y,stroke:col,'stroke-width':2,'stroke-linecap':'round',opacity:.34}));
+    g.appendChild(el('line',{x1:x(e['25']),x2:x(e['75']),y1:y,y2:y,stroke:col,'stroke-width':6,'stroke-linecap':'round',opacity:.62}));
+    g.appendChild(el('circle',{cx:x(e['50']),cy:y,r:5,fill:col,stroke:cv('--surface'),'stroke-width':2}));
+    bind(g,`<b>${ML[r.m]}</b><br>${PL[r.p]} · forward engine<br>p5 ${pc(e['5'])} · <b>median ${pc(e['50'])}</b> · p95 ${pc(e['95'])}<br>span ${num(e['95']-e['5'])}pp · vol ${pc(md.ann_vol_pct,1)}`);
+    svg.appendChild(g);
+    const vl=el('text',{x:x(e['95'])+9,y:y+3.5,fill:cv('--ink-2'),'font-size':9.5});
+    vl.textContent=num(e['50'])+' %';svg.appendChild(vl);});
+  document.getElementById('fig-range').appendChild(svg);
+})();
+
+/* FIG 3 */
+function fanMax(port,engine){   // common y-scale across all methods for one engine
+  let m=0;
+  METHODS.forEach(mm=>{
+    const fa=D.portfolios[port].methods[mm].engines[engine].fan;
+    if(fa) m=Math.max(m,Math.max(...fa['95']));});
+  return m;
+}
+function fanPanel(port,method,engine,maxOverride){
+  const md=D.portfolios[port].methods[method].engines[engine],f=md.fan,yrs=f.years;
+  const W=520,padL=48,padR=18,padT=28,padB=38,H=300;
+  const maxY=Math.ceil(maxOverride||Math.max(...f['95']));
+  const x=t=>padL+(t/(yrs.length-1))*(W-padL-padR);
+  const y=v=>H-padB-(v/maxY)*(H-padT-padB);
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img',
+    'aria-label':`Percentile fan of projected value, ${PL[port]}, ${ML[method]}, ${engine}`});
+  const step=maxY<=5?1:(maxY<=12?2:4);
+  for(let g=0;g<=maxY;g+=step){
+    svg.appendChild(el('line',{x1:padL,x2:W-padR,y1:y(g),y2:y(g),stroke:cv('--rule-2')}));
+    const t=el('text',{x:padL-8,y:y(g)+3.5,fill:cv('--ink-3'),'font-size':10,'text-anchor':'end'});
+    t.textContent=g+'×';svg.appendChild(t);}
+  [0,Math.floor(yrs.length/2),yrs.length-1].forEach(i=>{
+    const t=el('text',{x:x(i),y:H-padB+17,fill:cv('--ink-3'),'font-size':10,'text-anchor':'middle'});
+    t.textContent=yrs[i]+'y';svg.appendChild(t);});
+  const band=(a,b,fill)=>{
+    const p=yrs.map((_,i)=>`${x(i)},${y(f[a][i])}`)
+      .concat(yrs.map((_,i)=>`${x(yrs.length-1-i)},${y(f[b][yrs.length-1-i])}`));
+    svg.appendChild(el('polygon',{points:p.join(' '),fill,stroke:'none'}));};
+  band('5','95',cv('--fan-1'));band('25','75',cv('--fan-2'));
+  svg.appendChild(el('polyline',{points:yrs.map((_,i)=>`${x(i)},${y(f['50'][i])}`).join(' '),
+    fill:'none',stroke:cv('--fan-3'),'stroke-width':2,'stroke-linejoin':'round'}));
+  svg.appendChild(el('line',{x1:padL,x2:W-padR,y1:y(1),y2:y(1),stroke:cv('--ink-3'),
+    'stroke-width':1,'stroke-dasharray':'3 3',opacity:.6}));
+  (D.meta.withdrawals||[10,20]).forEach(wy=>{
+    const j=yrs.indexOf(wy); if(j<0) return;
+    svg.appendChild(el('line',{x1:x(j),x2:x(j),y1:padT+9,y2:H-padB,stroke:cv('--ink-3'),
+      'stroke-width':1,'stroke-dasharray':'2 3',opacity:.5}));
+    const t=el('text',{x:x(j)+4,y:padT+5,fill:cv('--ink-3'),'font-size':8.5});
+    t.textContent='−20%';svg.appendChild(t);});
+  const ttl=el('text',{x:padL,y:14,fill:cv('--ink'),'font-size':11,'font-weight':600});
+  ttl.textContent=`${PL[port]} · ${D.portfolios[port].horizon_years}y`;svg.appendChild(ttl);
+  const sub=el('text',{x:W-padR,y:14,fill:cv('--ink-3'),'font-size':9,'text-anchor':'end'});
+  sub.textContent=`median ${num(md.cagr_pct['50'])}% · received ${num(md.received_x['50'])}×`;
+  svg.appendChild(sub);
+  const cl=el('line',{y1:padT-6,y2:H-padB,stroke:cv('--ink-3'),'stroke-width':1,opacity:0});
+  svg.appendChild(cl);
+  const hit=el('rect',{x:padL,y:padT-6,width:W-padL-padR,height:H-padT-padB+6,fill:'transparent',class:'hit'});
+  hit.addEventListener('mousemove',ev=>{
+    const r=hit.getBoundingClientRect();
+    const j=Math.max(0,Math.min(yrs.length-1,Math.round(((ev.clientX-r.left)/r.width)*(yrs.length-1))));
+    cl.setAttribute('x1',x(j));cl.setAttribute('x2',x(j));cl.setAttribute('opacity',.5);
+    showTip(ev,`<b>${PL[port]} · ${ML[method]} · ${engine}</b><br>year ${yrs[j]}<br>p95 ${num(f['95'][j])}×<br>p75 ${num(f['75'][j])}×<br><b>median ${num(f['50'][j])}×</b><br>p25 ${num(f['25'][j])}×<br>p5 ${num(f['5'][j])}×`);});
+  hit.addEventListener('mouseleave',()=>{cl.setAttribute('opacity',0);hideTip();});
+  svg.appendChild(hit);
+  const d=document.createElement('div');d.className='plot';d.appendChild(svg);return d;
+}
+(function(){
+  const mSel=document.getElementById('fan-method'), eSel=document.getElementById('fan-engine');
+  mSel.innerHTML=METHODS.map(m=>`<option value="${m}">${ML[m]}</option>`).join('');
+  eSel.innerHTML=ENGINES.map(e=>`<option value="${e.k}">${e.n}</option>`).join('');
+  function draw(){
+    const m=mSel.value, e=eSel.value, host=document.getElementById('fig-fan');
+    host.innerHTML='';
+    PORTS.forEach(p=>host.appendChild(fanPanel(p,m,e,fanMax(p,e))));
+    document.getElementById('fan-hint').textContent=
+      'y-axis fixed across all five methods for this engine — switching engine rescales it';
+  }
+  mSel.addEventListener('change',draw); eSel.addEventListener('change',draw);
+  draw();
+})();
+
+/* full table */
+(function(){
+  let h=`<table><thead><tr><th>Method</th><th>Eq %</th><th>Vol %</th><th>Charge %</th>
+    <th>fwd med</th><th>fwd p5</th><th>boot med</th><th>hist med</th>
+    <th>taken out</th><th>end value</th><th>received</th><th>real recvd</th>
+    <th>P(real loss)</th><th>med. DD</th></tr></thead><tbody>`;
+  PORTS.forEach(p=>{
+    h+=`<tr class="group"><td colspan="14">${PL[p]} · ${D.portfolios[p].horizon_years} years, contributions to 85, 20% out at years 10 &amp; 20</td></tr>`;
+    METHODS.forEach(m=>{
+      const md=D.portfolios[p].methods[m],f=md.engines['fwd-mvn'];
+      const bm=md.engines['bootstrap'].cagr_pct['50'],hm=md.engines['hist-mvn'].cagr_pct['50'];
+      h+=`<tr class="${m==='Hand-set'?'hand':''}"><td>${ML[m]}</td>
+        <td>${num(md.equity_pct,1)}</td><td>${num(md.ann_vol_pct,1)}</td><td>${num(md.fee_pct,3)}</td>
+        <td>${num(f.cagr_pct['50'])}</td><td>${num(f.cagr_pct['5'])}</td>
+        <td class="${bm<1?'neg':''}">${num(bm)}</td><td class="${hm<1?'neg':''}">${num(hm)}</td>
+        <td>${num(f.withdrawn_x['50'])}×</td><td>${num(f.terminal_x['50'])}×</td>
+        <td>${num(f.received_x['50'])}×</td><td>${num(f.real_received_x['50'])}×</td>
+        <td>${num(f.p_real_loss,1)}%</td>
+        <td class="neg">${num(f.median_maxdd_pct,1)}</td></tr>`;});});
+  document.getElementById('fig-table').innerHTML=h+'</tbody></table>';
+})();
+
+/* fee-by-method table */
+(function(){
+  let h='';
+  PORTS.forEach(p=>{
+    const M=D.portfolios[p].methods, base=M['Hand-set'].fee_pct;
+    h+=`<table style="min-width:640px;margin-bottom:26px"><thead><tr><th>${PL[p]}</th>
+      <th>Charge %/yr</th><th>vs hand-set</th><th>fwd median, net</th>
+      <th>cost over ${D.portfolios[p].horizon_years}y</th></tr></thead><tbody>`;
+    METHODS.forEach(m=>{
+      const md=M[m], d=md.fee_pct-base, yrs=D.portfolios[p].horizon_years;
+      const drag=(1-Math.pow(1-md.fee_pct/100,yrs))*100;
+      h+=`<tr class="${m==='Hand-set'?'hand':''}"><td>${ML[m]}</td>
+        <td>${num(md.fee_pct,3)}</td>
+        <td class="${d>0?'neg':''}">${d>0?'+':''}${num(d,3)}</td>
+        <td>${pc(md.engines['fwd-mvn'].cagr_pct['50'])}</td>
+        <td class="neg">\u2212${num(drag,2)}% of terminal</td></tr>`;});
+    h+='</tbody></table>';});
+  document.getElementById('fee-table').innerHTML=h;
+})();
+
+/* what an added platform fee would cost */
+(function(){
+  let h=`<table style="min-width:620px"><thead><tr><th>Added platform fee</th>`;
+  PORTS.forEach(p=>{h+=`<th>${PL[p]} (${D.portfolios[p].horizon_years}y)</th>`;});
+  h+='</tr></thead><tbody>';
+  [0,0.15,0.25,0.40].forEach(f=>{
+    h+=`<tr class="${f===0?'hand':''}"><td>${f===0?'none (modelled)':num(f,2)+'%/yr'}</td>`;
+    PORTS.forEach(p=>{
+      const yrs=D.portfolios[p].horizon_years;
+      const drag=(1-Math.pow(1-f/100,yrs))*100;
+      h+=`<td class="${f>0?'neg':''}">${f===0?'\u2014':'\u2212'+num(drag,2)+'% of terminal'}</td>`;});
+    h+='</tr>';});
+  document.getElementById('platform-table').innerHTML=h+'</tbody></table>';
+})();
+
+document.getElementById('foot').innerHTML=
+  `Generated from <span class="mono">navs_monthly.csv</span> \u00b7 20,000 paths per portfolio per engine \u00b7 `
+  +`contributions to age 85, two withdrawals of 20% of value at years 10 and 20, applied to every path \u00b7 `
+  +`common random numbers across methods \u00b7 stationary block bootstrap, mean block 12 months \u00b7 real `
+  +`figures deflated at 2%/yr \u00b7 Gaussian engines moment-matched in log space so both the arithmetic annual `
+  +`mean and the annual volatility match the stated assumption \u00b7 the forward engine is net of each weight `
+  +`vector's own ongoing charge; the bootstrap and historical engines inherit charges from the NAVs. `
+  +`ISINs and ongoing charges verified against FT Markets on 8 September 2026.`;
+</script>

@@ -1,0 +1,73 @@
+{
+ "n_months": 149,
+ "years": 12.4,
+ "rows": [
+  {
+   "asset": "World",
+   "mu": 12.64,
+   "se_mu": 3.77,
+   "rel_mu": 30,
+   "sd": 13.27,
+   "se_sd": 0.77,
+   "rel_sd": 6,
+   "ci_lo": 5.26,
+   "ci_hi": 20.02
+  },
+  {
+   "asset": "EM",
+   "mu": 9.02,
+   "se_mu": 4.19,
+   "rel_mu": 46,
+   "sd": 14.76,
+   "se_sd": 0.86,
+   "rel_sd": 6,
+   "ci_lo": 0.81,
+   "ci_hi": 17.23
+  },
+  {
+   "asset": "SmallCap",
+   "mu": 10.99,
+   "se_mu": 4.55,
+   "rel_mu": 41,
+   "sd": 16.02,
+   "se_sd": 0.93,
+   "rel_sd": 6,
+   "ci_lo": 2.08,
+   "ci_hi": 19.9
+  },
+  {
+   "asset": "GlobalBond",
+   "mu": 0.54,
+   "se_mu": 1.18,
+   "rel_mu": 219,
+   "sd": 4.17,
+   "se_sd": 0.24,
+   "rel_sd": 6,
+   "ci_lo": -1.78,
+   "ci_hi": 2.86
+  },
+  {
+   "asset": "ShortBond",
+   "mu": 0.42,
+   "se_mu": 0.51,
+   "rel_mu": 122,
+   "sd": 1.79,
+   "se_sd": 0.1,
+   "rel_sd": 6,
+   "ci_lo": -0.58,
+   "ci_hi": 1.41
+  },
+  {
+   "asset": "InflLinked",
+   "mu": 2.31,
+   "se_mu": 1.7,
+   "rel_mu": 74,
+   "sd": 5.98,
+   "se_sd": 0.35,
+   "rel_sd": 6,
+   "ci_lo": -1.02,
+   "ci_hi": 5.64
+  }
+ ],
+ "years_for_1pp_world": 176
+}

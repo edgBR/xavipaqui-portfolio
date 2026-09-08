@@ -1,0 +1,224 @@
+<script>
+const ALL=JSON.parse(document.getElementById('data').textContent);
+const D=ALL.dca, FD=ALL.funds;
+const KEYS=Object.keys(D.people);
+const CS=getComputedStyle(document.documentElement); const cv=n=>CS.getPropertyValue(n).trim();
+const SH='http://www.w3.org/2000/svg';
+const el=(t,a={})=>{const e=document.createElementNS(SH,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const num=(x,d=2)=>Number(x).toFixed(d).replace('.',',');
+const eur=v=>Math.round(v).toLocaleString('es-ES')+' €';
+const eur2=v=>Number(v).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const pcs=(x,d=1)=>num(x,d)+' %';
+
+const tip=document.getElementById('tip');
+function showTip(ev,h){tip.innerHTML=h;tip.style.opacity=1;
+  const r=tip.getBoundingClientRect();let x=ev.clientX+15,y=ev.clientY-r.height-12;
+  if(x+r.width>innerWidth-8)x=ev.clientX-r.width-15; if(y<8)y=ev.clientY+18;
+  tip.style.left=x+'px';tip.style.top=y+'px';}
+function hideTip(){tip.style.opacity=0;}
+
+const SCEN=[{k:'cautious',n:'Hipótesis prudente'},{k:'repeat',n:'Si se repitiera 2014–2026'}];
+function fanMax(key){        // same y-axis for both scenarios, so the switch is honest
+  const P=D.people[key];
+  return Math.max(...SCEN.map(s=>Math.max(...P[s.k].fan['95'])));
+}
+function fanChart(key,scen){
+  const P=D.people[key],c=P[scen],f=c.fan,yrs=f.years,isA=key===KEYS[0];
+  const C1=cv(isA?'--fan-1':'--fan-1b'),C2=cv(isA?'--fan-2':'--fan-2b'),C3=cv(isA?'--fan-3':'--fan-3b');
+  const W=900,padL=108,padR=112,padT=26,padB=44,H=352;
+  const maxY=fanMax(key);
+  const x=i=>padL+(i/(yrs.length-1))*(W-padL-padR);
+  const y=v=>H-padB-(v/maxY)*(H-padT-padB);
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img',
+    'aria-label':`Saldo a lo largo del tiempo para la ${P.short}, escenario "${SCEN.find(s=>s.k===scen).n}", con el resultado central, el bueno y el malo frente al total aportado`});
+  const tick=maxY>1200000?400000:(maxY>600000?200000:100000);
+  for(let g=0;g<=maxY;g+=tick){
+    svg.appendChild(el('line',{x1:padL,x2:W-padR,y1:y(g),y2:y(g),stroke:cv('--rule-2')}));
+    const t=el('text',{x:padL-11,y:y(g)+4,fill:cv('--ink-3'),'font-size':11.5,'text-anchor':'end'});
+    t.textContent=eur(g);svg.appendChild(t);}
+  [0,Math.floor(yrs.length/2),yrs.length-1].forEach(i=>{
+    const t=el('text',{x:x(i),y:H-padB+19,fill:cv('--ink-3'),'font-size':11.5,'text-anchor':'middle'});
+    t.textContent=(P.age+yrs[i])+' años';svg.appendChild(t);});
+  const band=(a,b,fill)=>{
+    const p=yrs.map((_,i)=>`${x(i)},${y(f[a][i])}`)
+      .concat(yrs.map((_,i)=>`${x(yrs.length-1-i)},${y(f[b][yrs.length-1-i])}`));
+    svg.appendChild(el('polygon',{points:p.join(' '),fill,stroke:'none'}));};
+  band('5','95',C1);band('25','75',C2);
+  svg.appendChild(el('polyline',{points:yrs.map((_,i)=>`${x(i)},${y(f['50'][i])}`).join(' '),
+    fill:'none',stroke:C3,'stroke-width':2.5,'stroke-linejoin':'round'}));
+  svg.appendChild(el('polyline',{points:P.paid_by_year.map((v,i)=>`${x(i)},${y(v)}`).join(' '),
+    fill:'none',stroke:cv('--ink-2'),'stroke-width':2,'stroke-dasharray':'5 4'}));
+  const L=yrs.length-1;
+  // right-edge labels, pushed apart so they never overlap whatever the data does
+  const tags=[{v:f['95'][L],t:'bueno',c:C3},{v:f['50'][L],t:'central',c:C3},
+              {v:f['5'][L],t:'malo',c:C3},
+              {v:P.paid_by_year[L],t:'aportado',c:cv('--ink-2')}]
+    .map(o=>({...o,yy:y(o.v)+4})).sort((a,b)=>a.yy-b.yy);
+  for(let i=1;i<tags.length;i++)
+    if(tags[i].yy-tags[i-1].yy<14) tags[i].yy=tags[i-1].yy+14;
+  const drawTags=()=>tags.forEach(o=>{
+    const t=el('text',{x:W-padR+9,y:o.yy,fill:o.c,'font-size':11.5,'font-weight':600});
+    t.textContent=o.t;svg.appendChild(t);});
+  // mark each withdrawal year so the step down is obviously deliberate
+  (c.withdrawals||[]).forEach(wd=>{
+    const j=yrs.indexOf(wd.year); if(j<0) return;
+    svg.appendChild(el('line',{x1:x(j),x2:x(j),y1:padT+11,y2:H-padB,stroke:cv('--ink-3'),
+      'stroke-width':1,'stroke-dasharray':'2 3',opacity:.55}));
+    const t=el('text',{x:x(j)+5,y:padT+6,fill:cv('--ink-3'),'font-size':10.5});
+    t.textContent='saca 20 %';svg.appendChild(t);});
+  drawTags();
+  const cl=el('line',{y1:padT-4,y2:H-padB,stroke:cv('--ink-3'),'stroke-width':1,opacity:0});
+  svg.appendChild(cl);
+  const hit=el('rect',{x:padL,y:padT-4,width:W-padL-padR,height:H-padT-padB+4,fill:'transparent',class:'hit'});
+  hit.addEventListener('mousemove',ev=>{
+    const r=hit.getBoundingClientRect();
+    const j=Math.max(0,Math.min(L,Math.round(((ev.clientX-r.left)/r.width)*L)));
+    cl.setAttribute('x1',x(j));cl.setAttribute('x2',x(j));cl.setAttribute('opacity',.45);
+    showTip(ev,`<b>${P.age+yrs[j]} años</b><br>aportado hasta aquí ${eur(P.paid_by_year[j])}<br><br>
+      bueno (1 de 20) ${eur(f['95'][j])}<br><b>central ${eur(f['50'][j])}</b><br>malo (1 de 20) ${eur(f['5'][j])}`);});
+  hit.addEventListener('mouseleave',()=>{cl.setAttribute('opacity',0);hideTip();});
+  svg.appendChild(hit);
+  const d=document.createElement('div');d.className='plot';d.appendChild(svg);
+  const lg=document.createElement('div');lg.className='legend';
+  lg.innerHTML=`<span><i class="swatch line" style="background:${C3}"></i>resultado central</span>
+    <span><i class="swatch" style="background:${C2}"></i>la mitad habitual de los futuros</span>
+    <span><i class="swatch" style="background:${C1}"></i>9 de cada 10 futuros</span>
+    <span><i class="swatch line" style="background:${cv('--ink-2')}"></i>total aportado</span>`;
+  const box=document.createElement('div');box.appendChild(d);box.appendChild(lg);return box;
+}
+
+function personBlock(key,mount){
+  const P=D.people[key],c=P.cautious,m=document.getElementById(mount);
+  const cap=P.short.charAt(0).toUpperCase()+P.short.slice(1);
+  m.innerHTML=`
+    <div class="head"><h3>${cap}</h3>
+      <span class="chip">${P.mix}</span>
+      <span class="chip">aporta hasta los 85, hasta los 90 en total</span>
+      <span class="chip">comisiones ya descontadas</span></div>
+    <div class="answer">
+      <div><div class="k">Total aportado</div><div class="v pin tnum">${eur(c.paid_in_eur)}</div>
+        <div class="s">20.000 € más 600 € al mes durante ${P.contrib_years} años</div></div>
+      <div><div class="k">Recibido en total</div><div class="v mid tnum">${eur(c.received_eur['50'])}</div>
+        <div class="s">${num(c.multiple_of_paid_in['50'],1)}× lo aportado · lo sacado más lo que queda</div></div>
+      <div><div class="k">Caso malo (1 de cada 20)</div><div class="v tnum">${eur(c.received_eur['5'])}</div>
+        <div class="s">aún más de lo aportado — antes de descontar la subida de precios</div></div>
+      <div><div class="k">Caso bueno (1 de cada 20)</div><div class="v tnum">${eur(c.received_eur['95'])}</div>
+        <div class="s">un crecimiento anual de en torno al ${pcs(c.irr_pct['95'],2)}</div></div>
+    </div>
+    <div class="answer" style="margin-top:6px">
+      ${c.withdrawals.map((wd,i)=>`<div><div class="k">Sacado a los ${P.age+wd.year} años</div>
+        <div class="v tnum" style="font-size:1.6rem">${eur(wd.eur['50'])}</div>
+        <div class="s">el 20 % de la hucha · entre ${eur(wd.eur['5'])} y ${eur(wd.eur['95'])}</div></div>`).join('')}
+      <div><div class="k">Queda al final</div><div class="v tnum" style="font-size:1.6rem">${eur(c.terminal_eur['50'])}</div>
+        <div class="s">a los 90 años, después de las dos retiradas</div></div>
+      <div><div class="k">Sacado en total</div><div class="v tnum" style="font-size:1.6rem">${eur(c.withdrawn_eur['50'])}</div>
+        <div class="s">sumando las dos retiradas</div></div>
+    </div>
+    <div class="today"><b>En dinero de hoy, lo recibido en total son ${eur(c.real_received_eur['50'])}</b>, no ${eur(c.received_eur['50'])}.
+      Los precios suben, así que un euro dentro de ${P.horizon_years} años compra menos que un euro ahora. Medido así,
+      los ${eur(c.paid_in_eur)} aportados valen en realidad ${eur(c.paid_in_real_eur)}, y el plan los multiplica
+      por unas ${num(c.real_received_eur['50']/c.paid_in_real_eur,1)} veces. En el caso malo se queda en
+      ${eur(c.real_received_eur['5'])} — parecido al poder de compra del dinero que se puso, y poco más.
+      Hay un <b>${pcs(c.p_real_below_paid_in,2)} de probabilidad</b> de acabar con menos poder de compra del aportado.</div>`;
+  const tg=document.createElement('div'); tg.className='toggle';
+  tg.innerHTML='<span class="lbl">¿Qué suponemos que hacen los mercados?</span>'
+    +SCEN.map((sc,i)=>`<button type="button" data-s="${sc.k}" aria-pressed="${i===0}">${sc.n}</button>`).join('');
+  const holder=document.createElement('div');
+  m.appendChild(tg); m.appendChild(holder);
+  function render(scen){
+    holder.innerHTML='';
+    holder.appendChild(fanChart(key,scen));
+    tg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===scen));
+  }
+  tg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>render(b.dataset.s)));
+  render('cautious');
+  const cp=document.createElement('p');cp.className='caption';
+  cp.innerHTML='La línea discontinua es el dinero aportado; la línea de color es lo que hay en la hucha. '
+    +'Los dos escalones hacia abajo son las retiradas del 20 % — no son pérdidas, es dinero que sale. '
+    +'Fíjese en que el abanico sigue ensanchándose después de cada retirada: al sacar un porcentaje y no una '
+    +'cantidad fija, la hucha se reduce pero nunca se queda a cero.<br><br>'
+    +'<b>Los dos botones cambian la única suposición que de verdad manda:</b> qué rentabilidad damos por buena. '
+    +'«Prudente» es la que usamos en toda la página. «Si se repitiera 2014–2026» reproduce la última década tal cual. '
+    +'La escala vertical es la misma en los dos, para que la diferencia se vea de verdad. Cantidades antes de '
+    +'descontar la subida de precios.';
+  m.appendChild(cp);
+}
+personBlock(KEYS[0],'p-58');personBlock(KEYS[1],'p-64');
+
+(function(){
+  const blocks=KEYS.map(k=>{
+    const P=D.people[k],pl=FD.plans[k];
+    const seg=FD.order.map((f,i)=>{
+      const col=FD.funds[f].sleeve==='rv'?cv('--a'):cv('--rf');
+      return `<i style="width:${pl.weights_pct[f]}%;background:${col};opacity:${1-i*0.1}"></i>`;}).join('');
+    const rows=FD.order.map(f=>{
+      const fu=FD.funds[f];
+      return `<div class="fundrow">
+        <div class="what"><b>${fu.corto}</b><span>${fu.llano}</span>
+          <code>${fu.isin} · comisión ${num(fu.ter,2)} % al año</code></div>
+        <div class="amt"><b>${eur2(pl.monthly_eur[f])}</b>
+          <span>al mes · ${num(pl.weights_pct[f],1)} %</span><br>
+          <span>${eur(pl.initial_eur[f])} del inicio</span></div></div>`;}).join('');
+    return `<div class="person" style="margin-top:26px">
+      <div class="head"><h3>${P.short.charAt(0).toUpperCase()+P.short.slice(1)}</h3>
+        <span class="chip">${P.mix}</span></div>
+      <div class="mixbar">${seg}</div>
+      <div class="mixkey">
+        <span><i class="swatch" style="background:${cv('--a')}"></i>acciones ${num(pl.rv_pct,0)} %</span>
+        <span><i class="swatch" style="background:${cv('--rf')}"></i>bonos ${num(pl.rf_pct,0)} %</span></div>
+      <div style="margin-top:14px">${rows}</div></div>`;});
+  document.getElementById('fund-blocks').innerHTML=blocks.join('');
+  const A=D.people[KEYS[0]], pl=FD.plans[KEYS[0]];
+  document.getElementById('ter-pct').textContent=num(pl.ter_pct,2)+' %';
+  document.getElementById('ter-eur').textContent=eur(pl.ter_cost_year1_eur);
+  const drag=(1-Math.pow(1-pl.ter_pct/100,A.horizon_years))*100;
+  document.getElementById('ter-drag').textContent=num(drag,1)+' %';
+})();
+
+(function(){
+  const cards=KEYS.map(k=>{
+    const P=D.people[k],c=P.cautious;
+    const dropEur=Math.abs(c.median_maxdd_pct/100)*c.terminal_eur['50'];
+    return `<div class="card flag"><div class="big">${num(c.median_maxdd_pct,1)} %</div>
+      <h3>${P.short.charAt(0).toUpperCase()+P.short.slice(1)}: la caída habitual más fuerte</h3>
+      <p>En un futuro típico el saldo baja esto desde su punto más alto en algún momento. En el peor 1 de cada 100
+      futuros cae un <b>${num(c.worst_maxdd_pct,1)} %</b>. Sobre un saldo del tamaño del resultado central, una
+      caída del ${num(Math.abs(c.median_maxdd_pct),0)} % son unos ${eur(dropEur)} de pérdidas sobre el papel.</p></div>`;});
+  cards.push(`<div class="card"><div class="big">${num(D.people[KEYS[0]].ann_vol_pct,2)} % vs ${num(D.people[KEYS[1]].ann_vol_pct,2)} %</div>
+    <h3>Por qué se diferencian</h3>
+    <p>Es cuánto se mueve cada mezcla en un año. La de la ${D.people[KEYS[0]].short} se mueve casi el doble que la de la
+    ${D.people[KEYS[1]].short}. Ese es el precio de un resultado central más alto — no un defecto del plan, sino
+    aquello para lo que hay que estar preparado.</p></div>`);
+  document.getElementById('risk').innerHTML=cards.join('');
+})();
+
+(function(){
+  const A=D.people[KEYS[0]],B=D.people[KEYS[1]];
+  const pct=v=>num(v,1).replace(',0','');
+  const yr=s=>s.slice(0,4);
+  const bd=B.repeat.terminal_eur['50']-B.cautious.terminal_eur['50'];
+  document.getElementById('optimism').innerHTML=`
+    <h3>Si los últimos doce años se repitiesen sin más</h3>
+    <p>La ${A.short} acabaría con unos <b>${eur(A.repeat.terminal_eur['50'])}</b> en lugar de
+    ${eur(A.cautious.terminal_eur['50'])} — casi el doble. Pero la ${B.short} acabaría algo <b>peor</b>:
+    ${eur(B.repeat.terminal_eur['50'])} en lugar de ${eur(B.cautious.terminal_eur['50'])}, unos
+    ${eur(Math.abs(bd))} menos.</p>
+    <p>Precisamente por esa diferencia no usamos esas cifras. Entre ${yr(D.meta.sample_start)} y
+    ${yr(D.meta.sample_end)} a las acciones les fue inusualmente bien y a los bonos inusualmente mal — así que
+    repetir ese periodo premia a quien tenga más acciones y castiga a quien tenga más bonos. Describe esa
+    década, no la siguiente.</p>
+    <p>Las cifras de esta página suponen en cambio que las acciones crecen un
+    <b>${pct(D.meta.fwd_equity_pct)} % al año</b> y los bonos un <b>${pct(D.meta.fwd_bond_pct)} % al año</b>,
+    menos la comisión de los fondos, más cerca de lo que se espera normalmente a largo plazo. Si un plan solo
+    funciona cuando el pasado reciente se repite, no es un plan.</p>`;
+})();
+
+document.getElementById('foot').textContent=
+  `Basado en el comportamiento real, mes a mes, de siete fondos entre ${D.meta.sample_start.slice(0,4)} y `
+  +`${D.meta.sample_end.slice(0,4)} (${D.meta.sample_months} meses de datos). `
+  +`${D.meta.n_sim.toLocaleString('es-ES')} futuros probados por persona. Subida de precios supuesta del `
+  +`${num(D.meta.inflation_pct,0)} % al año. Aportaciones hasta los 85 años y dos retiradas del 20 % del valor, `
+  +`a los 10 y a los 20 años. Cifras netas de los gastos corrientes de los fondos; sin comisión `
+  +`de custodia. Un límite importante: los datos no incluyen la crisis financiera de 2008, así que las caídas `
+  +`mostradas aquí son probablemente más suaves que las de una crisis real. No es asesoramiento financiero.`;
+</script>

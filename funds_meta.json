@@ -1,0 +1,220 @@
+{
+ "funds": {
+  "World": {
+   "isin": "IE000ZYRH0Q7",
+   "ter": 0.06,
+   "sleeve": "rv",
+   "name": "iShares Developed World Index Fund (IE) S Acc EUR",
+   "en": "Developed-world companies",
+   "corto": "Empresas de países ricos",
+   "en_plain": "Shares in about 1,400 large companies across the US, Europe and Japan. The engine of the portfolio.",
+   "llano": "Acciones de unas 1.400 grandes empresas de EE. UU., Europa y Japón. Es el motor de la cartera."
+  },
+  "EM": {
+   "isin": "IE000QAZP7L2",
+   "ter": 0.16,
+   "sleeve": "rv",
+   "name": "iShares Emerging Markets Index Fund (IE) S Acc EUR",
+   "en": "Emerging-market companies",
+   "corto": "Empresas de países emergentes",
+   "en_plain": "Shares in companies from China, India, Brazil, Taiwan. They grow faster but fall harder.",
+   "llano": "Acciones de empresas de China, India, Brasil, Taiwán… Crecen más rápido, pero caen más fuerte."
+  },
+  "SmallCap": {
+   "isin": "IE00B42W3S00",
+   "ter": 0.29,
+   "sleeve": "rv",
+   "name": "Vanguard Global Small-Cap Index Fund Investor EUR Acc",
+   "en": "Small companies",
+   "corto": "Empresas pequeñas",
+   "en_plain": "Shares in small companies in rich countries. More risk and more reward over very long periods.",
+   "llano": "Acciones de empresas pequeñas de países ricos. Más riesgo y más recompensa a muy largo plazo."
+  },
+  "GlobalBond": {
+   "isin": "IE00B18GC888",
+   "ter": 0.15,
+   "sleeve": "rf",
+   "name": "Vanguard Global Bond Index Fund EUR Hedged Acc",
+   "en": "Global bonds (intermediate)",
+   "corto": "Bonos globales (plazo medio)",
+   "en_plain": "Loans to governments and large companies worldwide, with the currency risk hedged away.",
+   "llano": "Préstamos a gobiernos y grandes empresas de todo el mundo, con el riesgo de divisa cubierto."
+  },
+  "ShortBond": {
+   "isin": "IE0004ZP1ND3",
+   "ter": 0.08,
+   "sleeve": "rf",
+   "name": "iShares Global Aggregate 1-5 Year Bond Index (IE) S Acc EUR Hedged",
+   "en": "Global bonds (short-dated)",
+   "corto": "Bonos globales (plazo corto)",
+   "en_plain": "The same, but repayable in 1-5 years. The calmest part: it barely moves.",
+   "llano": "Lo mismo, pero a devolver en 1–5 años. Es la parte más tranquila: apenas se mueve."
+  },
+  "InflLinked": {
+   "isin": "IE00B04GQR24",
+   "ter": 0.12,
+   "sleeve": "rf",
+   "name": "Vanguard Eurozone Inflation-Linked Bond Index Fund EUR Acc",
+   "en": "Inflation-linked bonds",
+   "corto": "Bonos ligados a la inflación",
+   "en_plain": "Bonds that pay more when prices rise. They protect against exactly what hurts a retiree most.",
+   "llano": "Bonos que pagan más si los precios suben. Protegen justo de lo que más daña a un jubilado."
+  }
+ },
+ "order": [
+  "World",
+  "EM",
+  "SmallCap",
+  "GlobalBond",
+  "ShortBond",
+  "InflLinked"
+ ],
+ "plans": {
+  "58yo 60/40": {
+   "weights_pct": {
+    "World": 45.0,
+    "EM": 8.0,
+    "SmallCap": 7.0,
+    "GlobalBond": 20.0,
+    "ShortBond": 12.0,
+    "InflLinked": 8.0
+   },
+   "initial_eur": {
+    "World": 9000.0,
+    "EM": 1600.0,
+    "SmallCap": 1400.0,
+    "GlobalBond": 4000.0,
+    "ShortBond": 2400.0,
+    "InflLinked": 1600.0
+   },
+   "monthly_eur": {
+    "World": 270.0,
+    "EM": 48.0,
+    "SmallCap": 42.0,
+    "GlobalBond": 120.0,
+    "ShortBond": 72.0,
+    "InflLinked": 48.0
+   },
+   "ter_pct": 0.109,
+   "rv_pct": 60.0,
+   "rf_pct": 40.0,
+   "ter_cost_year1_eur": 21.86
+  },
+  "64yo 25/75": {
+   "weights_pct": {
+    "World": 20.0,
+    "EM": 3.0,
+    "SmallCap": 2.0,
+    "GlobalBond": 25.0,
+    "ShortBond": 30.0,
+    "InflLinked": 20.0
+   },
+   "initial_eur": {
+    "World": 4000.0,
+    "EM": 600.0,
+    "SmallCap": 400.0,
+    "GlobalBond": 5000.0,
+    "ShortBond": 6000.0,
+    "InflLinked": 4000.0
+   },
+   "monthly_eur": {
+    "World": 120.0,
+    "EM": 18.0,
+    "SmallCap": 12.0,
+    "GlobalBond": 150.0,
+    "ShortBond": 180.0,
+    "InflLinked": 120.0
+   },
+   "ter_pct": 0.108,
+   "rv_pct": 25.0,
+   "rf_pct": 75.0,
+   "ter_cost_year1_eur": 21.62
+  }
+ },
+ "method_weights": {
+  "58yo 60/40": {
+   "Hand-set": {
+    "World": 45.0,
+    "EM": 8.0,
+    "SmallCap": 7.0,
+    "GlobalBond": 20.0,
+    "ShortBond": 12.0,
+    "InflLinked": 8.0
+   },
+   "HRP-in-sleeves": {
+    "World": 18.6,
+    "EM": 28.6,
+    "SmallCap": 12.8,
+    "GlobalBond": 5.5,
+    "ShortBond": 30.0,
+    "InflLinked": 4.5
+   },
+   "NCO-in-sleeves": {
+    "World": 44.9,
+    "EM": 15.1,
+    "SmallCap": 0.0,
+    "GlobalBond": 0.0,
+    "ShortBond": 39.3,
+    "InflLinked": 0.7
+   },
+   "HRP unconstrained": {
+    "World": 0.9,
+    "EM": 1.4,
+    "SmallCap": 0.6,
+    "GlobalBond": 13.4,
+    "ShortBond": 72.8,
+    "InflLinked": 10.9
+   },
+   "NCO min-var unconstrained": {
+    "World": 0.0,
+    "EM": 0.0,
+    "SmallCap": 0.0,
+    "GlobalBond": 0.0,
+    "ShortBond": 97.0,
+    "InflLinked": 2.9
+   }
+  },
+  "64yo 25/75": {
+   "Hand-set": {
+    "World": 20.0,
+    "EM": 3.0,
+    "SmallCap": 2.0,
+    "GlobalBond": 25.0,
+    "ShortBond": 30.0,
+    "InflLinked": 20.0
+   },
+   "HRP-in-sleeves": {
+    "World": 7.8,
+    "EM": 11.9,
+    "SmallCap": 5.3,
+    "GlobalBond": 10.4,
+    "ShortBond": 56.2,
+    "InflLinked": 8.4
+   },
+   "NCO-in-sleeves": {
+    "World": 18.7,
+    "EM": 6.3,
+    "SmallCap": 0.0,
+    "GlobalBond": 0.0,
+    "ShortBond": 73.8,
+    "InflLinked": 1.2
+   },
+   "HRP unconstrained": {
+    "World": 0.9,
+    "EM": 1.4,
+    "SmallCap": 0.6,
+    "GlobalBond": 13.4,
+    "ShortBond": 72.8,
+    "InflLinked": 10.9
+   },
+   "NCO min-var unconstrained": {
+    "World": 0.0,
+    "EM": 0.0,
+    "SmallCap": 0.0,
+    "GlobalBond": 0.0,
+    "ShortBond": 97.0,
+    "InflLinked": 2.9
+   }
+  }
+ }
+}

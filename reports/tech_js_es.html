@@ -1,0 +1,248 @@
+<script>
+const ALL=JSON.parse(document.getElementById('data').textContent);
+const D=ALL.mc, FD=ALL.funds, ES=ALL.estim;
+const PORTS=Object.keys(D.portfolios);
+const PL={"58yo 60/40":"58 años · 60/40","64yo 25/75":"64 años · 25/75"};
+const ML={"Hand-set":"Manual","HRP-in-sleeves":"HRP por bloques","NCO-in-sleeves":"NCO por bloques",
+          "HRP unconstrained":"HRP sin restricción","NCO min-var unconstrained":"NCO mín-var sin restr."};
+const METHODS=Object.keys(ML);
+const ENGINES=[{k:'fwd-mvn',n:'prospectivo 6/3,3',v:'--s1'},
+               {k:'bootstrap',n:'bootstrap',v:'--s2'},
+               {k:'hist-mvn',n:'histórico',v:'--s3'}];
+const CS=getComputedStyle(document.documentElement); const cv=n=>CS.getPropertyValue(n).trim();
+const SH='http://www.w3.org/2000/svg';
+const el=(t,a={})=>{const e=document.createElementNS(SH,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const num=(x,d=2)=>Number(x).toFixed(d).replace('.',',');
+const pc=(x,d=2)=>num(x,d)+' %';
+const eur=v=>Math.round(v).toLocaleString('es-ES')+' €';
+const eur2=v=>Number(v).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+
+const tip=document.getElementById('tip');
+function showTip(ev,h){tip.innerHTML=h;tip.style.opacity=1;
+  const r=tip.getBoundingClientRect();let x=ev.clientX+14,y=ev.clientY-r.height-10;
+  if(x+r.width>innerWidth-8)x=ev.clientX-r.width-14; if(y<8)y=ev.clientY+16;
+  tip.style.left=x+'px';tip.style.top=y+'px';}
+function hideTip(){tip.style.opacity=0;}
+function bind(n,h){n.addEventListener('mousemove',e=>showTip(e,h));n.addEventListener('mouseleave',hideTip);}
+
+/* tiles */
+(function(){
+  const a=D.portfolios[PORTS[0]].methods, con=['Hand-set','HRP-in-sleeves','NCO-in-sleeves'];
+  const fwd=con.map(m=>a[m].engines['fwd-mvn'].cagr_pct['50']);
+  const ms=Math.max(...fwd)-Math.min(...fwd);
+  const h=a['Hand-set'].engines, eng=ENGINES.map(e=>h[e.k].cagr_pct['50']);
+  const es=Math.max(...eng)-Math.min(...eng);
+  const t=[
+    {v:num(ms)+' pp',l:'Dispersión entre los tres <b>métodos con restricción</b>, 58 años, motor prospectivo.',f:'elección de método',c:'accent'},
+    {v:num(es)+' pp',l:'Dispersión entre los tres <b>motores</b>, para un mismo vector de pesos.',f:Math.round(es/ms)+'× mayor',c:'flag'},
+    {v:num(h['fwd-mvn'].real_terminal_x['50'])+'×',l:'Capital terminal <b>real</b> mediano, 58 años, 32 años, tras 2 % de inflación.',f:'p5 = '+num(h['fwd-mvn'].real_terminal_x['5'])+'× — apenas se conserva',c:''},
+    {v:num(h['fwd-mvn'].p_real_loss,1)+' %',l:'Probabilidad de que la persona de 58 años <b>pierda poder de compra</b> en todo el horizonte.',f:'64 años: '+num(D.portfolios[PORTS[1]].methods['Hand-set'].engines['fwd-mvn'].p_real_loss,1)+' %',c:''}];
+  document.getElementById('tiles').innerHTML=t.map(x=>
+    `<div class="tile ${x.c}"><div class="val">${x.v}</div><div class="lab">${x.l}</div><div class="foot">${x.f}</div></div>`).join('');
+})();
+
+function legend(id,items){document.getElementById(id).innerHTML=items.map(i=>
+  `<span><i class="swatch" style="background:${i.c}"></i>${i.n}</span>`).join('');}
+legend('lg-engine',ENGINES.map(e=>({n:e.n,c:cv(e.v)})));
+legend('lg-port',PORTS.map((p,i)=>({n:PL[p],c:cv(i?'--s2':'--s1')})));
+legend('lg-fan',[{n:'percentil 5–95',c:cv('--fan-1')},{n:'percentil 25–75',c:cv('--fan-2')},{n:'trayectoria mediana',c:cv('--fan-3')}]);
+
+/* estimator-precision table */
+(function(){
+  let h=`<table><thead><tr><th>Activo</th><th>μ̂</th><th>EE(μ̂)</th><th>rel.</th>
+    <th>σ̂</th><th>EE(σ̂)</th><th>rel.</th><th>IC 95 % sobre μ</th></tr></thead><tbody>`;
+  ES.rows.forEach(r=>{
+    h+=`<tr><td>${r.asset}</td><td>${pc(r.mu)}</td><td>${pc(r.se_mu)}</td>
+      <td class="${r.rel_mu>100?'neg':''}">${r.rel_mu} %</td>
+      <td>${pc(r.sd)}</td><td>${pc(r.se_sd)}</td><td>${r.rel_sd} %</td>
+      <td>[${pc(r.ci_lo)}, ${pc(r.ci_hi)}]</td></tr>`;});
+  document.getElementById('estim-table').innerHTML=h+'</tbody></table>';
+})();
+
+/* fund cards */
+(function(){
+  const SL={rv:'renta variable',rf:'renta fija'};
+  const cards=PORTS.map(p=>{
+    const pl=FD.plans[p], w=pl.weights_pct;
+    const seg=FD.order.map((k,i)=>{
+      const col=FD.funds[k].sleeve==='rv'?cv('--s1'):cv('--s3');
+      return `<i style="width:${w[k]}%;background:${col};opacity:${1-i*0.11}"></i>`;}).join('');
+    let rows=FD.order.map(k=>{
+      const f=FD.funds[k];
+      return `<tr><td>${f.corto}</td><td>${num(w[k],1)} %</td><td>${eur(pl.initial_eur[k])}</td>
+        <td>${eur2(pl.monthly_eur[k])}</td><td>${num(f.ter,2)} %</td>
+        <td style="font-size:.78rem">${f.isin}</td></tr>`;}).join('');
+    return `<div class="fundcard">
+      <h3>${PL[p]}</h3>
+      <div class="meta">${num(pl.rv_pct,0)} % renta variable · ${num(pl.rf_pct,0)} % renta fija ·
+        gastos corrientes ponderados ${num(pl.ter_pct,2)} %/año</div>
+      <div class="bar">${seg}</div>
+      <div class="tablewrap" style="box-shadow:none;border:none;margin-top:4px">
+      <table style="min-width:520px"><thead><tr><th>Fondo</th><th>Peso</th><th>De 20.000 €</th>
+        <th>De 600 €/mes</th><th>Gastos</th><th>ISIN</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;});
+  document.getElementById('fund-cards').innerHTML=cards.join('');
+})();
+
+/* per-method weights matrix */
+(function(){
+  let h='';
+  PORTS.forEach(p=>{
+    h+=`<table style="min-width:620px;margin-bottom:26px"><thead><tr><th>${PL[p]}</th>`;
+    METHODS.forEach(m=>{h+=`<th>${ML[m]}</th>`;});
+    h+='</tr></thead><tbody>';
+    FD.order.forEach(k=>{
+      h+=`<tr><td>${FD.funds[k].corto}</td>`;
+      METHODS.forEach(m=>{
+        const v=ALL.funds.method_weights[p][m][k];
+        h+=`<td style="${v===0?'opacity:.35':''}">${num(v,1)}</td>`;});
+      h+='</tr>';});
+    h+=`<tr class="group"><td>Renta variable total</td>`;
+    METHODS.forEach(m=>{
+      const mw=ALL.funds.method_weights[p][m];
+      const t=['World','EM','SmallCap'].reduce((a,k)=>a+mw[k],0);
+      h+=`<td style="text-align:right">${num(t,1)}</td>`;});
+    h+='</tr></tbody></table>';});
+  document.getElementById('weights-table').innerHTML=h;
+})();
+
+/* FIG 1 */
+function methodPanel(port){
+  const M=D.portfolios[port].methods;
+  const W=520,padL=190,padR=54,padT=30,padB=40,rowH=54,barH=12,gap=3;
+  const H=padT+METHODS.length*rowH+padB, maxV=8.0;
+  const x=v=>padL+(v/maxV)*(W-padL-padR);
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img',
+    'aria-label':`Rentabilidad anualizada mediana por método y motor, ${PL[port]}`});
+  for(let g=0;g<=8;g+=2){
+    svg.appendChild(el('line',{x1:x(g),x2:x(g),y1:padT-8,y2:H-padB,stroke:cv('--rule-2')}));
+    const t=el('text',{x:x(g),y:H-padB+17,fill:cv('--ink-3'),'font-size':10,'text-anchor':'middle'});
+    t.textContent=g+' %';svg.appendChild(t);}
+  const ttl=el('text',{x:padL,y:14,fill:cv('--ink'),'font-size':11,'font-weight':600});
+  ttl.textContent=PL[port];svg.appendChild(ttl);
+  METHODS.forEach((m,i)=>{
+    const md=M[m],y0=padT+i*rowH+6;
+    const lab=el('text',{x:padL-12,y:y0+(3*(barH+gap))/2+1,fill:cv('--ink'),'font-size':10.5,'text-anchor':'end'});
+    lab.textContent=ML[m].replace(' sin restricción','').replace(' sin restr.','');
+    svg.appendChild(lab);
+    if(m.includes('unconstrained')){
+      const s=el('text',{x:padL-12,y:y0+(3*(barH+gap))/2+13,fill:cv('--ink-3'),'font-size':8.5,'text-anchor':'end'});
+      s.textContent='sin restricción · '+num(md.equity_pct,1)+' % RV';svg.appendChild(s);}
+    ENGINES.forEach((e,j)=>{
+      const v=md.engines[e.k].cagr_pct['50'],p5=md.engines[e.k].cagr_pct['5'];
+      const yy=y0+j*(barH+gap),w=Math.max(x(Math.max(v,0))-x(0),1.5);
+      const r=el('rect',{x:x(0),y:yy,width:w,height:barH,rx:3,fill:cv(e.v),
+        stroke:cv('--surface'),'stroke-width':2,class:'hit'});
+      bind(r,`<b>${ML[m]}</b><br>${PL[port]}<br>motor ${e.n}<br>mediana <b>${pc(v)}</b> · p5 ${pc(p5)}<br>vol. ${pc(md.ann_vol_pct,1)} · RV ${num(md.equity_pct,1)} %`);
+      svg.appendChild(r);
+      const vl=el('text',{x:x(Math.max(v,0))+7,y:yy+barH-2.5,fill:cv('--ink-2'),'font-size':9.5});
+      vl.textContent=num(v)+' %';svg.appendChild(vl);});});
+  svg.appendChild(el('line',{x1:x(0),x2:x(0),y1:padT-8,y2:H-padB,stroke:cv('--rule')}));
+  const d=document.createElement('div');d.className='plot';d.appendChild(svg);return d;
+}
+PORTS.forEach(p=>document.getElementById('fig-methods').appendChild(methodPanel(p)));
+
+/* FIG 2 */
+(function(){
+  const W=880,padL=228,padR=64,padT=30,padB=42,rowH=30,gg=34;
+  const rows=[];PORTS.forEach((p,gi)=>METHODS.forEach(m=>rows.push({p,m,gi})));
+  const yOf=i=>padT+i*rowH+rows[i].gi*gg+rowH/2;
+  const H=padT+rows.length*rowH+(PORTS.length-1)*gg+padB;
+  const x=v=>padL+(v/10)*(W-padL-padR);
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img',
+    'aria-label':'Percentiles 5 a 95 de la rentabilidad anualizada por método, motor prospectivo'});
+  for(let g=0;g<=10;g+=2){
+    svg.appendChild(el('line',{x1:x(g),x2:x(g),y1:padT-10,y2:H-padB,stroke:cv('--rule-2')}));
+    const t=el('text',{x:x(g),y:H-padB+17,fill:cv('--ink-3'),'font-size':10,'text-anchor':'middle'});
+    t.textContent=g+' %';svg.appendChild(t);}
+  let last=null;
+  rows.forEach((r,i)=>{
+    const md=D.portfolios[r.p].methods[r.m],e=md.engines['fwd-mvn'].cagr_pct;
+    const y=yOf(i),col=cv(r.p===PORTS[0]?'--s1':'--s2');
+    if(r.p!==last){
+      const g=el('text',{x:16,y:y-rowH/2-13,fill:cv('--ink-3'),'font-size':9,'letter-spacing':'.1em','font-weight':500});
+      g.textContent=PL[r.p].toUpperCase();svg.appendChild(g);
+      svg.appendChild(el('line',{x1:16,x2:W-padR,y1:y-rowH/2-8,y2:y-rowH/2-8,stroke:cv('--rule')}));
+      last=r.p;}
+    const lab=el('text',{x:padL-14,y:y+3.5,fill:cv('--ink'),'font-size':10.5,'text-anchor':'end'});
+    lab.textContent=ML[r.m];svg.appendChild(lab);
+    const g=el('g',{class:'hit'});
+    g.appendChild(el('line',{x1:x(e['5']),x2:x(e['95']),y1:y,y2:y,stroke:col,'stroke-width':2,'stroke-linecap':'round',opacity:.34}));
+    g.appendChild(el('line',{x1:x(e['25']),x2:x(e['75']),y1:y,y2:y,stroke:col,'stroke-width':6,'stroke-linecap':'round',opacity:.62}));
+    g.appendChild(el('circle',{cx:x(e['50']),cy:y,r:5,fill:col,stroke:cv('--surface'),'stroke-width':2}));
+    bind(g,`<b>${ML[r.m]}</b><br>${PL[r.p]} · motor prospectivo<br>p5 ${pc(e['5'])} · <b>mediana ${pc(e['50'])}</b> · p95 ${pc(e['95'])}<br>amplitud ${num(e['95']-e['5'])} pp · vol. ${pc(md.ann_vol_pct,1)}`);
+    svg.appendChild(g);
+    const vl=el('text',{x:x(e['95'])+9,y:y+3.5,fill:cv('--ink-2'),'font-size':9.5});
+    vl.textContent=num(e['50'])+' %';svg.appendChild(vl);});
+  document.getElementById('fig-range').appendChild(svg);
+})();
+
+/* FIG 3 */
+function fanPanel(port){
+  const md=D.portfolios[port].methods['Hand-set'].engines['fwd-mvn'],f=md.fan,yrs=f.years;
+  const W=520,padL=48,padR=18,padT=28,padB=38,H=300;
+  const maxY=Math.ceil(Math.max(...f['95']));
+  const x=t=>padL+(t/(yrs.length-1))*(W-padL-padR);
+  const y=v=>H-padB-(v/maxY)*(H-padT-padB);
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img',
+    'aria-label':`Abanico de percentiles del valor proyectado, ${PL[port]}`});
+  const step=maxY<=5?1:2;
+  for(let g=0;g<=maxY;g+=step){
+    svg.appendChild(el('line',{x1:padL,x2:W-padR,y1:y(g),y2:y(g),stroke:cv('--rule-2')}));
+    const t=el('text',{x:padL-8,y:y(g)+3.5,fill:cv('--ink-3'),'font-size':10,'text-anchor':'end'});
+    t.textContent=g+'×';svg.appendChild(t);}
+  [0,Math.floor(yrs.length/2),yrs.length-1].forEach(i=>{
+    const t=el('text',{x:x(i),y:H-padB+17,fill:cv('--ink-3'),'font-size':10,'text-anchor':'middle'});
+    t.textContent=yrs[i]+' a';svg.appendChild(t);});
+  const band=(a,b,fill)=>{
+    const p=yrs.map((_,i)=>`${x(i)},${y(f[a][i])}`)
+      .concat(yrs.map((_,i)=>`${x(yrs.length-1-i)},${y(f[b][yrs.length-1-i])}`));
+    svg.appendChild(el('polygon',{points:p.join(' '),fill,stroke:'none'}));};
+  band('5','95',cv('--fan-1'));band('25','75',cv('--fan-2'));
+  svg.appendChild(el('polyline',{points:yrs.map((_,i)=>`${x(i)},${y(f['50'][i])}`).join(' '),
+    fill:'none',stroke:cv('--fan-3'),'stroke-width':2,'stroke-linejoin':'round'}));
+  svg.appendChild(el('line',{x1:padL,x2:W-padR,y1:y(1),y2:y(1),stroke:cv('--ink-3'),
+    'stroke-width':1,'stroke-dasharray':'3 3',opacity:.6}));
+  const ttl=el('text',{x:padL,y:14,fill:cv('--ink'),'font-size':11,'font-weight':600});
+  ttl.textContent=`${PL[port]} · ${D.portfolios[port].horizon_years} años`;svg.appendChild(ttl);
+  const cl=el('line',{y1:padT-6,y2:H-padB,stroke:cv('--ink-3'),'stroke-width':1,opacity:0});
+  svg.appendChild(cl);
+  const hit=el('rect',{x:padL,y:padT-6,width:W-padL-padR,height:H-padT-padB+6,fill:'transparent',class:'hit'});
+  hit.addEventListener('mousemove',ev=>{
+    const r=hit.getBoundingClientRect();
+    const j=Math.max(0,Math.min(yrs.length-1,Math.round(((ev.clientX-r.left)/r.width)*(yrs.length-1))));
+    cl.setAttribute('x1',x(j));cl.setAttribute('x2',x(j));cl.setAttribute('opacity',.5);
+    showTip(ev,`<b>${PL[port]} · año ${yrs[j]}</b><br>p95 ${num(f['95'][j])}×<br>p75 ${num(f['75'][j])}×<br><b>mediana ${num(f['50'][j])}×</b><br>p25 ${num(f['25'][j])}×<br>p5 ${num(f['5'][j])}×`);});
+  hit.addEventListener('mouseleave',()=>{cl.setAttribute('opacity',0);hideTip();});
+  svg.appendChild(hit);
+  const d=document.createElement('div');d.className='plot';d.appendChild(svg);return d;
+}
+PORTS.forEach(p=>document.getElementById('fig-fan').appendChild(fanPanel(p)));
+
+/* full table */
+(function(){
+  let h=`<table><thead><tr><th>Método</th><th>RV %</th><th>Vol. %</th>
+    <th>prosp. med.</th><th>prosp. p5</th><th>boot. med.</th><th>hist. med.</th>
+    <th>term. real</th><th>P(pérdida real)</th><th>caída med.</th></tr></thead><tbody>`;
+  PORTS.forEach(p=>{
+    h+=`<tr class="group"><td colspan="10">${PL[p]} · ${D.portfolios[p].horizon_years} años</td></tr>`;
+    METHODS.forEach(m=>{
+      const md=D.portfolios[p].methods[m],f=md.engines['fwd-mvn'];
+      const bm=md.engines['bootstrap'].cagr_pct['50'],hm=md.engines['hist-mvn'].cagr_pct['50'];
+      h+=`<tr class="${m==='Hand-set'?'hand':''}"><td>${ML[m]}</td>
+        <td>${num(md.equity_pct,1)}</td><td>${num(md.ann_vol_pct,1)}</td>
+        <td>${num(f.cagr_pct['50'])}</td><td>${num(f.cagr_pct['5'])}</td>
+        <td class="${bm<1?'neg':''}">${num(bm)}</td><td class="${hm<1?'neg':''}">${num(hm)}</td>
+        <td>${num(f.real_terminal_x['50'])}×</td><td>${num(f.p_real_loss,1)} %</td>
+        <td class="neg">${num(f.median_maxdd_pct,1)}</td></tr>`;});});
+  document.getElementById('fig-table').innerHTML=h+'</tbody></table>';
+})();
+
+document.getElementById('foot').innerHTML=
+  `Generado a partir de <span class="mono">navs_monthly.csv</span> · 20.000 trayectorias por cartera y motor, `
+  +`números aleatorios comunes entre métodos · bootstrap estacionario, bloque medio 12 meses · cifras reales `
+  +`deflactadas al 2 %/año · los motores gaussianos se ajustan por momentos en espacio logarítmico para que `
+  +`coincidan tanto la media aritmética anual como la volatilidad anual. ISIN y gastos corrientes verificados `
+  +`en FT Markets el 8 de septiembre de 2026.`;
+</script>
+
+</body></html>

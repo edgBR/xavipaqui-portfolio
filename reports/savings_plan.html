@@ -1,0 +1,519 @@
+<title>Seiscientos al Mes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --ground:#f3f6f4; --surface:#ffffff; --surface-2:#e7ede9; --band:#eaf0ec;
+  --ink:#101a15; --ink-2:#46564d; --ink-3:#54655b;
+  --rule:#d5ded8; --rule-2:#e4ebe6;
+  --accent:#0a6a4d;
+  --a:#2a78d6; --b:#eb6834; --rf:#1baf7a;
+  --fan-1:#cfe0f5; --fan-2:#9dc2ea; --fan-3:#2a78d6;
+  --fan-1b:#fbdcce; --fan-2b:#f6b294; --fan-3b:#eb6834;
+  --shadow:0 1px 2px rgba(16,26,21,.05), 0 10px 30px -20px rgba(16,26,21,.25);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#101512; --surface:#171d19; --surface-2:#1e2621; --band:#1b231e;
+    --ink:#e7efe9; --ink-2:#9db0a5; --ink-3:#87988d;
+    --rule:#2b352f; --rule-2:#222b26;
+    --accent:#5fd3a6;
+    --a:#3987e5; --b:#d95926; --rf:#199e70;
+    --fan-1:#1e3a5c; --fan-2:#2a5b91; --fan-3:#6aa8ec;
+    --fan-1b:#4a2417; --fan-2b:#8a3d1d; --fan-3b:#ef8a5c;
+    --shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 30px -20px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#101512; --surface:#171d19; --surface-2:#1e2621; --band:#1b231e;
+  --ink:#e7efe9; --ink-2:#9db0a5; --ink-3:#87988d;
+  --rule:#2b352f; --rule-2:#222b26;
+  --accent:#5fd3a6;
+  --a:#3987e5; --b:#d95926; --rf:#199e70;
+  --fan-1:#1e3a5c; --fan-2:#2a5b91; --fan-3:#6aa8ec;
+  --fan-1b:#4a2417; --fan-2b:#8a3d1d; --fan-3b:#ef8a5c;
+  --shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 30px -20px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Source Sans 3",ui-sans-serif,system-ui,sans-serif;
+  font-size:18px; line-height:1.66; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:0 26px 104px}
+.col{max-width:58ch}
+h1,h2,h3,.num{font-family:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif; margin:0}
+h1{font-size:clamp(2.3rem,6vw,4.1rem); font-weight:600; line-height:1.03; letter-spacing:-.03em; text-wrap:balance}
+h2{font-size:clamp(1.6rem,3.1vw,2.3rem); font-weight:600; line-height:1.16; letter-spacing:-.02em; text-wrap:balance}
+h3{font-size:1.18rem; font-weight:600; letter-spacing:-.01em}
+p{margin:0}
+.lede{font-size:clamp(1.16rem,1.9vw,1.42rem); line-height:1.55; color:var(--ink-2); margin-top:22px; max-width:56ch}
+.lede b{color:var(--ink); font-weight:600}
+.eyebrow{font-size:.78rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--accent)}
+.tnum{font-variant-numeric:tabular-nums}
+
+header{padding:80px 0 0}
+section{margin-top:82px}
+.shead{display:flex; flex-direction:column; gap:13px; margin-bottom:30px}
+.shead p{color:var(--ink-2); max-width:58ch}
+
+.plan{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1px;
+  background:var(--rule); border:1px solid var(--rule); border-radius:4px; overflow:hidden; margin-top:42px;
+}
+.plan div{background:var(--surface); padding:22px 22px 20px}
+.plan .num{font-size:1.95rem; font-weight:600; line-height:1.1; letter-spacing:-.02em; color:var(--accent)}
+.plan .t{font-size:.95rem; color:var(--ink-2); margin-top:5px}
+
+.steps{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:22px; margin-top:8px}
+.step{display:flex; flex-direction:column; gap:9px}
+.step .n{
+  width:31px;height:31px;border-radius:50%;background:var(--accent);color:var(--surface);
+  display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:.92rem;flex:none;
+}
+.step p{color:var(--ink-2); font-size:.98rem}
+
+.person{
+  background:var(--surface); border:1px solid var(--rule); border-radius:4px;
+  box-shadow:var(--shadow); padding:30px; margin-top:26px;
+}
+.person > .head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:6px}
+.person > .head h3{font-size:1.5rem}
+.chip{
+  font-size:.8rem; font-weight:600; padding:3px 11px; border-radius:100px;
+  background:var(--surface-2); color:var(--ink-2); white-space:nowrap;
+}
+.answer{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:24px; margin:26px 0 6px}
+.answer .k{font-size:.86rem; font-weight:600; color:var(--ink-3); text-transform:uppercase; letter-spacing:.07em}
+.answer .v{font-family:"Bricolage Grotesque",sans-serif; font-size:2.1rem; font-weight:600;
+  letter-spacing:-.03em; line-height:1.12; font-variant-numeric:tabular-nums; margin-top:4px}
+.answer .s{font-size:.92rem; color:var(--ink-2); margin-top:3px; line-height:1.45}
+.v.pin{color:var(--ink-2)} .v.mid{color:var(--accent)}
+.today{
+  margin-top:22px; padding:17px 20px; background:var(--band); border-radius:4px;
+  font-size:.98rem; color:var(--ink-2); line-height:1.55;
+}
+.today b{color:var(--ink)}
+
+.plot{width:100%; overflow-x:auto; margin-top:22px}
+.plot svg{display:block; width:100%; height:auto}
+.legend{display:flex; gap:16px; flex-wrap:wrap; margin-top:14px}
+.legend span{display:inline-flex; align-items:center; gap:7px; font-size:.86rem; color:var(--ink-2)}
+.swatch{width:13px;height:13px;border-radius:3px;flex:none}
+.swatch.line{height:3px;border-radius:2px}
+.caption{font-size:.9rem; color:var(--ink-3); line-height:1.55; margin-top:16px; padding-top:14px;
+  border-top:1px solid var(--rule-2); max-width:66ch}
+text{font-family:"Source Sans 3",ui-sans-serif,sans-serif}
+
+.fundrow{display:grid; grid-template-columns:1fr auto; gap:8px 26px; align-items:start;
+  padding:19px 0; border-bottom:1px solid var(--rule-2)}
+.fundrow:last-child{border-bottom:none}
+.fundrow .what{max-width:52ch}
+.fundrow .what b{display:block; font-size:1.04rem}
+.fundrow .what span{font-size:.94rem; color:var(--ink-2)}
+.fundrow .what code{font-size:.78rem; color:var(--ink-3); font-family:ui-monospace,monospace;
+  letter-spacing:.02em; display:block; margin-top:5px}
+.fundrow .amt{text-align:right; white-space:nowrap}
+.fundrow .amt b{font-family:"Bricolage Grotesque",sans-serif; font-size:1.32rem; font-weight:600;
+  font-variant-numeric:tabular-nums; display:block; letter-spacing:-.02em}
+.fundrow .amt span{font-size:.85rem; color:var(--ink-3)}
+.mixbar{display:flex; height:13px; border-radius:3px; overflow:hidden; gap:2px; margin:20px 0 8px}
+.mixbar i{display:block}
+.mixkey{display:flex; gap:18px; flex-wrap:wrap; font-size:.87rem; color:var(--ink-2)}
+.mixkey span{display:inline-flex; align-items:center; gap:7px}
+
+.toggle{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:22px}
+.toggle .lbl{font-size:.84rem; font-weight:700; color:var(--ink-3); margin-right:4px}
+.toggle button{font-family:"Source Sans 3",sans-serif; font-size:.9rem; font-weight:600;
+  padding:8px 15px; border-radius:100px; border:1px solid var(--rule); cursor:pointer;
+  background:var(--surface); color:var(--ink-2); transition:none}
+.toggle button[aria-pressed="true"]{background:var(--accent); color:var(--surface);
+  border-color:var(--accent)}
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:18px; margin-top:8px}
+.card{background:var(--surface); border:1px solid var(--rule); border-radius:4px; padding:24px; box-shadow:var(--shadow)}
+.card .big{font-family:"Bricolage Grotesque",sans-serif; font-size:1.85rem; font-weight:600;
+  letter-spacing:-.02em; line-height:1.1; font-variant-numeric:tabular-nums}
+.card h3{margin:12px 0 7px; font-size:1.04rem}
+.card p{font-size:.95rem; color:var(--ink-2)}
+.flag .big{color:var(--b)}
+
+.callout{
+  border:1px solid var(--rule); border-left:4px solid var(--accent); border-radius:4px;
+  background:var(--surface); padding:26px 28px; margin-top:26px; box-shadow:var(--shadow);
+}
+.callout h3{margin-bottom:9px}
+.callout p{color:var(--ink-2); max-width:60ch}
+.callout p + p{margin-top:12px}
+
+dl.gloss{margin:8px 0 0; display:grid; gap:19px}
+dl.gloss dt{font-weight:700; color:var(--ink)}
+dl.gloss dd{margin:3px 0 0; color:var(--ink-2); font-size:.97rem; max-width:60ch}
+
+footer{margin-top:86px; padding-top:24px; border-top:1px solid var(--rule); color:var(--ink-3); font-size:.9rem; max-width:66ch}
+
+#tip{
+  position:fixed; z-index:50; pointer-events:none; opacity:0; transition:opacity .1s;
+  background:var(--ink); color:var(--ground); padding:9px 12px; border-radius:4px;
+  font-size:.86rem; line-height:1.5; font-variant-numeric:tabular-nums;
+  box-shadow:0 6px 20px rgba(0,0,0,.3); max-width:250px;
+}
+.hit{cursor:crosshair}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<div class="wrap">
+<header>
+  <p class="eyebrow">Un plan de ahorro, explicado con claridad</p>
+  <h1>Seiscientos<br>al mes</h1>
+  <p class="lede">Dos personas ponen <b>20.000 €</b> al principio y después <b>600 € cada mes hasta los 85 años</b>. Por el camino sacan <b>el 20 % dos veces</b>: a los 10 y a los 20 años. Esta página muestra cuánto podrían recibir en total — <b>lo probable, lo bueno y lo malo</b> — y dice sin rodeos qué puede salir mal. Sin jerga. Cada palabra difícil está explicada al final.</p>
+  <div class="plan">
+    <div><div class="num">20.000 €</div><div class="t">Aportados al principio</div></div>
+    <div><div class="num">600 €</div><div class="t">Añadidos cada mes, hasta los 85 años</div></div>
+    <div><div class="num">20 % × 2</div><div class="t">Sacado a los 10 y a los 20 años</div></div>
+    <div><div class="num">20.000</div><div class="t">Futuros posibles probados por persona</div></div>
+  </div>
+</header>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Cómo leer esta página</p>
+    <h2>Nadie sabe qué harán los mercados. Así que probamos 20.000 versiones del futuro.</h2>
+    <p class="col">Esto no es una predicción. Es una forma de mostrar el <em>abanico</em> de cosas que podrían pasar, y lo probable que es cada una.</p>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h3>Inventar un futuro</h3><p>El ordenador se inventa una sucesión de meses buenos y malos, mes a mes, a partir de cómo se han comportado estos fondos en realidad.</p></div>
+    <div class="step"><div class="n">2</div><h3>Seguir el dinero</h3><p>Añade los 600 €, aplica la subida o bajada de ese mes, y repite — cada mes, durante 26 o 32 años. A los 10 y a los 20 años saca el 20 % de lo que haya.</p></div>
+    <div class="step"><div class="n">3</div><h3>Hacerlo 20.000 veces</h3><p>Después ordena todos los finales. Contamos el del medio y también los extremos: el mejor y el peor 1 de cada 20.</p></div>
+  </div>
+  <div class="today" style="margin-top:30px;max-width:66ch">
+    <b>Dos palabras que hacen falta ya.</b> Las <b>acciones</b> son trocitos de propiedad de empresas: a largo plazo son lo que más ha crecido, pero pueden caer un tercio en un año malo. Los <b>bonos</b> son préstamos a gobiernos y grandes empresas que pagan intereses: crecen menos, pero se mueven mucho menos. Una cartera «60 / 40» tiene 60 % en acciones y 40 % en bonos.
+  </div>
+  <div class="today" style="max-width:66ch">
+    <b>Sacar el 20 % es sacar un porcentaje, no una cantidad fija.</b> Eso importa mucho: si el mercado ha ido mal, se saca menos dinero, así que la hucha nunca se puede vaciar. Sacar «2.000 € al mes pase lo que pase» sí puede vaciarla. Es la diferencia entre un plan que se adapta y uno que no.
+  </div>
+  <div class="today" style="max-width:66ch">
+    <b>Y las comisiones ya están descontadas.</b> Todas las cifras de esta página son <b>después</b> de restar lo que cobran los fondos. No incluyen, en cambio, ninguna comisión de custodia del banco: MyInvestor no cobra ninguna por fondos, pero otros sí, y eso habría que restarlo aparte.
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Persona uno</p>
+    <h2>La persona de 58 años</h2>
+    <p class="col">Una mezcla más atrevida, porque queda más tiempo antes de necesitar el dinero. Más acciones significa más crecimiento de media, pero también caídas más grandes por el camino.</p>
+  </div>
+  <div class="person" id="p-58"></div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Persona dos</p>
+    <h2>La persona de 64 años</h2>
+    <p class="col">Una mezcla más prudente. Menos crecimiento, pero el valor se mueve mucho menos — lo que importa cuando el dinero puede necesitarse antes.</p>
+  </div>
+  <div class="person" id="p-64"></div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">En qué se invierte el dinero</p>
+    <h2>Los seis fondos, y cuánto va a cada uno.</h2>
+    <p class="col">El dinero no va a un solo sitio: se reparte entre seis fondos muy baratos, cada uno con un trabajo distinto. Esto es lo que recibe cada uno de los 600 € mensuales. Al sacar el 20 %, se saca ese 20 % de cada fondo, de modo que la mezcla no cambia.</p>
+  </div>
+  <div id="fund-blocks"></div>
+  <div class="today" style="max-width:66ch">
+    <b>Lo que cuesta.</b> Estos fondos cobran una comisión anual muy baja: en conjunto, alrededor del <b id="ter-pct"></b> al año — unos <b id="ter-eur"></b> al año sobre 20.000 €. Ya está restada de todas las cifras anteriores. A lo largo de los 32 años de la persona de 58, esa comisión se lleva en torno a un <b id="ter-drag"></b> del resultado final. Parece poco, y lo es: una comisión del 1,5 % en lugar del 0,11 % se llevaría cerca de un tercio.
+  </div>
+  <p class="caption" style="max-width:66ch">Los códigos <code style="font-family:ui-monospace,monospace;font-size:.85em">ISIN</code> son el nombre oficial de cada fondo — son lo que hay que dar al banco para comprar el correcto, porque muchos fondos tienen nombres casi idénticos. Los datos se comprobaron el 8 de septiembre de 2026; conviene confirmarlos antes de contratar.</p>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">La parte incómoda</p>
+    <h2>El valor bajará algunas veces. Hay que contar con ello.</h2>
+    <p class="col">Esto no son líneas suaves que suben. En un futuro típico, el saldo baja desde su punto más alto más o menos esto en algún momento — y en uno malo, bastante más.</p>
+  </div>
+  <div class="cards" id="risk"></div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Por qué estas cifras son deliberadamente prudentes</p>
+    <h2>El pasado reciente es una mala guía — en los dos sentidos.</h2>
+  </div>
+  <div class="callout" id="optimism"></div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Que quede claro</p>
+    <h2>Tres cosas que esta página no hace.</h2>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <h3>Supone que se aporta hasta los 85</h3>
+      <p>Los 600 € al mes siguen entrando hasta los 85 años, y después el dinero se deja quieto hasta los 90. Para la persona de 58 son 27 años de aportaciones; para la de 64, 21 años. Si hay que parar antes, las cifras bajan y habría que recalcularlas.</p>
+    </div>
+    <div class="card">
+      <h3>Solo saca dinero dos veces</h3>
+      <p>Dos retiradas del 20 %, separadas diez años. Una jubilación real se gasta poco a poco, mes a mes, y eso es algo más arriesgado: se está vendiendo constantemente, también en los años malos. Estas cifras son, por tanto, la versión más benévola.</p>
+    </div>
+    <div class="card">
+      <h3>No es asesoramiento financiero</h3>
+      <p>Es aritmética sobre cómo se ha comportado una mezcla de fondos, no una recomendación de compra. Un asesor cualificado que conozca la pensión, los ingresos y la situación fiscal de cada uno es una conversación distinta y necesaria.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Palabras claras</p>
+    <h2>Qué significan los términos.</h2>
+  </div>
+  <dl class="gloss col">
+    <div><dt>Acciones</dt><dd>Pequeñas partes de propiedad de empresas. A lo largo de periodos largos son lo que más ha crecido, pero pueden caer un tercio o más en un año malo.</dd></div>
+    <div><dt>Bonos</dt><dd>Préstamos a gobiernos y grandes empresas que pagan intereses. Normalmente crecen menos que las acciones, pero suben y bajan mucho menos.</dd></div>
+    <div><dt>En dinero de hoy</dt><dd>Los precios suben con el tiempo, así que 1 € dentro de treinta años compra menos que 1 € ahora. «En dinero de hoy» quiere decir que ya hemos descontado eso, para poder compararlo con precios que se conocen. Supusimos que los precios suben un 2 % al año.</dd></div>
+    <div><dt>1 de cada 20</dt><dd>De los 20.000 futuros probados, los ordenamos y miramos el punto donde solo un 5 % salió peor. Es un caso malo, no el peor imaginable.</dd></div>
+    <div><dt>Crecimiento anual</dt><dd>El único ritmo de crecimiento constante que habría producido el mismo final, teniendo en cuenta que el dinero entró poco a poco y no todo de golpe.</dd></div>
+    <div><dt>Caída desde el punto más alto</dt><dd>Cuánto bajó el saldo desde su mejor nivel antes de recuperarse. Es la cifra que hace que la gente entre en pánico y venda — que suele ser justo el error.</dd></div>
+    <div><dt>Comisión (o «gastos corrientes»)</dt><dd>Lo que el fondo cobra cada año por gestionar el dinero, descontado día a día del valor. No se paga aparte: ya viene restado del precio que se ve.</dd></div>
+    <div><dt>Retirada (sacar dinero)</dt><dd>Vender una parte de los fondos para tener el dinero disponible. Aquí se saca el 20 % de lo que haya en ese momento, no una cantidad fija — así que en un año malo se saca menos, y la hucha nunca llega a vaciarse.</dd></div>
+    <div><dt>Fondo indexado</dt><dd>Un fondo que no intenta elegir empresas ganadoras: simplemente compra todas las de una lista. Por eso es tan barato, y por eso a largo plazo suele ganar a los que sí intentan elegir.</dd></div>
+    <div><dt>ISIN</dt><dd>El código oficial de doce caracteres que identifica un fondo de forma única. Es lo que hay que dar al banco para no comprar el fondo equivocado.</dd></div>
+  </dl>
+</section>
+
+<footer id="foot"></footer>
+</div>
+
+<div id="tip" role="status" aria-live="polite"></div>
+<script type="application/json" id="data">{"dca":{"meta":{"w0_eur":20000.0,"contrib_eur":600.0,"n_sim":20000,"inflation_pct":2.0,"sample_start":"2014-04","sample_end":"2026-08","sample_months":149,"fwd_equity_pct":6.0,"fwd_bond_pct":3.3000000000000003,"assets":["World","EM","SmallCap","GlobalBond","ShortBond","InflLinked"],"equity":["World","EM","SmallCap"],"bonds":["GlobalBond","ShortBond","InflLinked"]},"people":{"58yo 60/40":{"age":58,"mix":"60 % acciones / 40 % bonos","short":"persona de 58 años","horizon_years":32,"contrib_years":27,"equity_pct":60.0,"ann_vol_pct":8.58,"fee_pct":0.109,"cautious":{"paid_in_eur":214400.0,"paid_in_real_eur":170699.92,"terminal_eur":{"5":233913.92,"25":321335.08,"50":403452.22,"75":507436.2,"95":708569.69},"real_terminal_eur":{"5":124122.52,"25":170511.09,"50":214085.18,"75":269262.55,"95":375990.67},"withdrawn_eur":{"5":54010.01,"25":64221.0,"50":73030.51,"75":83566.97,"95":102755.38},"received_eur":{"5":296134.32,"25":389700.84,"50":477971.26,"75":588366.23,"95":799776.41},"real_received_eur":{"5":168904.91,"25":219947.21,"50":267823.8,"75":327438.77,"95":441777.99},"withdrawals":[{"year":10,"eur":{"5":18234.73,"25":21625.44,"50":24368.08,"75":27477.82,"95":32791.61}},{"year":20,"eur":{"5":33071.48,"25":41152.89,"50":48236.98,"75":57209.24,"95":73404.24}}],"multiple_of_paid_in":{"5":1.381,"25":1.818,"50":2.229,"75":2.744,"95":3.73},"irr_pct":{"5":1.94,"25":3.47,"50":4.55,"75":5.61,"95":7.14},"p_below_paid_in":0.21,"p_real_below_paid_in":5.39,"median_maxdd_pct":-14.89,"worst_maxdd_pct":-30.48,"fan":{"years":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],"5":[25141.2,31691.22,38532.52,45665.89,52982.39,60169.87,67631.88,75027.98,82939.4,72938.9,81242.7,89558.64,98312.36,106827.11,115866.13,125209.93,134861.72,144912.9,154792.74,132285.93,142438.45,151824.31,162432.0,173204.47,184579.95,195574.06,206729.41,211991.66,217883.99,223309.08,229214.38,233913.92],"25":[26943.63,34738.82,42839.99,51150.22,59823.96,68795.98,78087.3,87678.21,97809.87,86501.77,96517.97,107140.56,117934.16,129134.36,140914.27,152609.88,165435.91,178533.79,191681.05,164611.57,177886.7,191698.1,206006.58,220665.33,235933.54,251188.62,268045.2,277798.26,287219.49,298798.65,310048.97,321335.08],"50":[28304.78,36995.06,46010.82,55466.06,65365.18,75667.18,86443.63,97765.07,109429.42,97472.33,109146.5,121382.37,134475.17,147931.08,162103.15,176645.61,192192.41,207743.35,224489.92,192947.93,209704.95,227285.62,245219.6,263647.5,283350.86,302446.87,324193.65,338741.26,354737.88,368922.34,386189.28,403452.22],"75":[29711.95,39381.1,49477.37,60196.09,71479.52,83461.79,95953.2,108943.31,122922.3,109911.27,123708.64,138054.73,153589.24,169716.11,186510.07,204955.82,223593.96,243562.54,263921.36,228836.97,248377.59,270455.99,292697.69,316560.59,341444.54,366440.98,392950.96,414942.47,437029.27,460458.81,483968.53,507436.2],"95":[31827.38,43236.54,55284.57,67882.97,81468.51,96115.41,111682.78,128055.34,145878.9,131166.42,148072.35,167093.1,186872.37,207495.81,230880.68,254720.72,279913.4,305674.57,336134.54,293616.95,320802.33,351027.97,380120.16,413759.02,448005.68,483776.86,520848.31,552996.84,588527.31,626154.93,668184.72,708569.69]}},"repeat":{"paid_in_eur":214400.0,"paid_in_real_eur":170699.92,"terminal_eur":{"5":481342.54,"25":624085.08,"50":747337.75,"75":894466.09,"95":1159402.4},"real_terminal_eur":{"5":255416.38,"25":331160.33,"50":396562.3,"75":474633.5,"95":615217.53},"withdrawn_eur":{"5":76086.78,"25":88705.63,"50":98857.57,"75":110159.84,"95":129815.91},"received_eur":{"5":565721.02,"25":717732.51,"50":846168.67,"75":1001233.91,"95":1277550.17},"real_received_eur":{"5":316042.39,"25":398555.97,"50":467310.49,"75":550967.11,"95":699665.06},"withdrawals":[{"year":10,"eur":{"5":23203.23,"25":26705.6,"50":29368.21,"75":32356.31,"95":37133.72}},{"year":20,"eur":{"5":50136.68,"25":60653.26,"50":69364.92,"75":78963.97,"95":95614.62}}],"multiple_of_paid_in":{"5":2.639,"25":3.348,"50":3.947,"75":4.67,"95":5.959},"irr_pct":{"5":5.45,"25":6.65,"50":7.44,"75":8.25,"95":9.4},"p_below_paid_in":0.0,"p_real_below_paid_in":0.0,"median_maxdd_pct":-13.43,"worst_maxdd_pct":-23.44,"fan":{"years":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],"5":[25878.64,33729.87,42117.9,51081.04,60429.17,70277.78,80826.37,91703.34,103256.35,92812.91,104689.12,117167.36,130461.78,144862.78,160239.66,176368.15,193789.9,211505.55,231421.68,200546.72,219753.15,240606.24,261451.97,284295.72,307982.54,332952.05,359834.42,380758.52,403862.7,428658.88,452346.03,481342.54],"25":[27844.56,36734.6,46153.71,56302.12,67208.27,78824.06,91048.22,104178.25,118301.77,106822.39,121160.18,136235.73,152582.56,169919.82,188539.38,208638.48,229880.22,252364.94,277332.62,242613.04,266272.93,292385.24,319035.13,347627.39,378231.13,411405.4,447451.12,478174.32,510060.42,545519.69,582843.25,624085.08],"50":[28996.72,38671.5,49056.46,60189.19,72184.37,85040.84,98917.83,113834.11,129719.53,117472.84,133793.69,150856.36,169899.55,190177.52,211501.18,234677.1,259943.15,286502.85,314910.36,277459.67,305005.16,335090.09,367748.57,402661.19,438776.14,479160.66,522606.89,561643.44,603660.56,648766.68,696764.35,747337.75],"75":[30359.99,40810.05,52185.32,64387.18,77589.68,91788.13,107310.76,124121.89,142064.28,129425.24,147825.43,167763.13,189186.73,212409.62,237566.13,264214.62,293385.31,324332.53,358484.96,315855.9,349152.77,384068.25,423501.57,465014.34,510257.22,558699.98,613449.76,661763.6,713919.35,767982.36,831121.08,894466.09],"95":[31927.01,43879.98,56673.46,70733.89,85946.59,102726.92,120909.5,141003.0,162370.44,148534.88,171132.02,194905.63,220305.7,249044.94,278894.42,313591.82,351281.5,390574.92,434188.94,382458.48,425189.79,471407.69,519475.59,575077.34,635746.64,698749.23,768645.83,838217.96,913692.28,987064.46,1069922.36,1159402.4]}},"hist":{"paid_in_eur":214400.0,"paid_in_real_eur":170699.92,"terminal_eur":{"5":407780.01,"25":566110.25,"50":716393.72,"75":907208.46,"95":1276885.2},"real_terminal_eur":{"5":216381.66,"25":300396.95,"50":380142.36,"75":481395.02,"95":677557.81},"withdrawn_eur":{"5":70141.74,"25":84229.25,"50":96610.82,"75":111386.79,"95":138457.73},"received_eur":{"5":487902.57,"25":655863.69,"50":815112.72,"75":1014027.45,"95":1404658.21},"real_received_eur":{"5":273731.87,"25":364829.76,"50":450732.34,"75":557978.23,"95":768022.38},"withdrawals":[{"year":10,"eur":{"5":21600.45,"25":25665.17,"50":28939.7,"75":32654.82,"95":39014.42}},{"year":20,"eur":{"5":45394.52,"25":56947.99,"50":67180.82,"75":80131.64,"95":103456.47}}],"multiple_of_paid_in":{"5":2.276,"25":3.059,"50":3.802,"75":4.73,"95":6.552},"irr_pct":{"5":4.69,"25":6.2,"50":7.26,"75":8.31,"95":9.82},"p_below_paid_in":0.0,"p_real_below_paid_in":0.03,"median_maxdd_pct":-12.33,"worst_maxdd_pct":-24.77,"fan":{"years":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],"5":[25787.16,33133.33,40973.9,49354.06,58166.81,67067.57,76610.66,86285.66,96799.41,86401.81,97503.66,108852.15,121061.44,133621.7,146896.45,161133.89,176184.18,192347.63,208757.83,181578.1,197353.46,214021.73,231901.84,251162.56,271875.84,292662.52,314616.64,331145.42,349477.82,368370.57,388291.68,407780.01],"25":[27592.06,36255.03,45492.5,55214.98,65618.99,76683.08,88395.67,100819.48,114226.5,102660.68,116130.84,130715.22,146029.22,162252.83,179886.29,197776.03,217817.14,238838.44,260828.29,227791.94,249595.47,273099.89,298270.13,324231.6,352155.27,381810.58,413980.84,440376.15,466965.58,499081.49,531751.92,566110.25],"50":[28953.45,38561.17,48797.37,59819.3,71639.78,84252.99,97786.59,112407.14,127878.68,115758.81,131459.86,148428.46,166799.93,186456.92,207585.77,230021.71,254028.1,279371.54,306657.34,268723.29,296052.04,326320.61,357783.44,390952.15,427609.79,464351.18,505750.93,542709.01,582514.19,621882.24,667855.68,716393.72],"75":[30358.21,40999.24,52405.02,64849.49,78264.67,92922.22,108524.48,125275.46,143669.01,130619.27,149257.13,169164.0,191042.14,214572.2,239644.71,267649.64,296920.32,328769.39,362883.01,320526.57,353216.04,390475.78,429953.82,472995.37,519018.18,567766.96,618717.03,670822.49,723945.7,783833.8,844000.22,907208.46],"95":[32466.02,44927.64,58451.83,72994.36,89050.27,106793.15,126244.51,147097.61,170559.87,156057.68,178838.91,204980.23,233058.36,263345.86,297588.75,334253.16,373827.66,415864.86,463935.96,413825.88,460087.37,511555.04,563159.65,624979.76,689442.74,759759.3,832348.59,905271.37,986461.32,1074532.62,1175298.01,1276885.2]}},"paid_by_year":[27200.0,34400.0,41600.0,48800.0,56000.0,63200.0,70400.0,77600.0,84800.0,92000.0,99200.0,106400.0,113600.0,120800.0,128000.0,135200.0,142400.0,149600.0,156800.0,164000.0,171200.0,178400.0,185600.0,192800.0,200000.0,207200.0,214400.0,221600.0,228800.0,236000.0,243200.0,250400.0]},"64yo 25/75":{"age":64,"mix":"25 % acciones / 75 % bonos","short":"persona de 64 años","horizon_years":26,"contrib_years":21,"equity_pct":25.0,"ann_vol_pct":4.98,"fee_pct":0.108,"cautious":{"paid_in_eur":171200.0,"paid_in_real_eur":143803.57,"terminal_eur":{"5":172551.24,"25":204497.47,"50":230594.52,"75":259957.83,"95":309689.52},"real_terminal_eur":{"5":103113.05,"25":122203.45,"50":137798.51,"75":155345.41,"95":185064.04},"withdrawn_eur":{"5":56617.96,"25":62907.91,"50":67813.6,"75":73148.65,"95":81937.87},"received_eur":{"5":231899.51,"25":268920.58,"50":298416.94,"75":332109.27,"95":387585.93},"real_received_eur":{"5":146151.84,"25":168818.91,"50":186878.63,"75":207447.16,"95":241301.73},"withdrawals":[{"year":10,"eur":{"5":19680.4,"25":21677.56,"50":23231.89,"75":24972.18,"95":27635.91}},{"year":20,"eur":{"5":35401.33,"25":40440.61,"50":44445.02,"75":48817.27,"95":56168.15}}],"multiple_of_paid_in":{"5":1.355,"25":1.571,"50":1.743,"75":1.94,"95":2.264},"irr_pct":{"5":2.11,"25":3.1,"50":3.78,"75":4.47,"95":5.43},"p_below_paid_in":0.01,"p_real_below_paid_in":4.03,"median_maxdd_pct":-6.53,"worst_maxdd_pct":-15.26,"fan":{"years":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26],"5":[26188.19,33337.92,40732.08,48238.9,56164.69,64247.25,72283.13,80887.56,89416.99,78721.6,87427.4,96456.16,105596.12,114872.1,124599.53,134608.05,144888.25,155391.66,165799.64,141605.31,152555.26,156345.63,160203.04,164160.88,168334.95,172551.24],"25":[27294.54,35182.39,43292.27,51707.44,60444.17,69471.63,78706.12,88344.11,98244.38,86710.23,96758.25,106983.03,117649.67,128652.48,139691.61,151242.96,163240.72,175905.78,188868.72,161762.43,174379.35,179809.03,185636.17,191636.83,198075.05,204497.47],"50":[28088.85,36493.92,45196.17,54300.85,63674.29,73448.25,83563.53,94084.27,104879.21,92927.56,104016.92,115273.48,126949.02,139151.3,151695.0,164629.16,178114.54,192231.88,206836.51,177780.09,191678.77,198643.11,206367.41,214102.33,222123.93,230594.52],"75":[28904.19,37847.16,47201.56,57011.35,67130.11,77767.81,88762.82,100206.55,112203.81,99888.73,111757.11,124162.89,137211.26,150781.58,164922.75,179415.72,194608.03,210341.87,227104.41,195269.09,211158.05,220088.17,229497.19,239565.31,249995.7,259957.83],"95":[30130.48,39989.15,50220.83,60969.07,72359.59,84468.96,97000.45,110125.84,123667.03,110543.64,124195.25,138399.51,153720.2,169741.04,185988.48,203143.93,221021.45,239787.08,260274.95,224672.61,243596.99,255772.33,267988.82,281282.32,295531.71,309689.52]}},"repeat":{"paid_in_eur":171200.0,"paid_in_real_eur":143803.57,"terminal_eur":{"5":176160.36,"25":205400.32,"50":228414.47,"75":252896.1,"95":290600.56},"real_terminal_eur":{"5":105269.78,"25":122742.98,"50":136495.75,"75":151125.47,"95":173656.87},"withdrawn_eur":{"5":57336.42,"25":63237.95,"50":67401.28,"75":71755.26,"95":78510.51},"received_eur":{"5":236305.05,"25":269763.97,"50":295653.05,"75":323514.8,"95":366747.6},"real_received_eur":{"5":148921.48,"25":169373.58,"50":185213.18,"75":202249.79,"95":228501.89},"withdrawals":[{"year":10,"eur":{"5":19853.74,"25":21856.64,"50":23250.97,"75":24651.45,"95":26568.5}},{"year":20,"eur":{"5":36151.88,"25":40704.04,"50":44191.49,"75":47714.77,"95":53351.87}}],"multiple_of_paid_in":{"5":1.38,"25":1.576,"50":1.727,"75":1.89,"95":2.142},"irr_pct":{"5":2.24,"25":3.12,"50":3.72,"75":4.3,"95":5.09},"p_below_paid_in":0.0,"p_real_below_paid_in":2.96,"median_maxdd_pct":-8.53,"worst_maxdd_pct":-17.53,"fan":{"years":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26],"5":[26024.4,33094.59,40716.9,48617.51,56397.24,64422.36,72836.11,81499.32,90239.13,79414.98,88312.4,97449.13,107088.02,116614.24,126658.77,136686.62,147075.16,157870.03,168936.38,144607.53,155053.08,158962.68,163015.72,167530.15,171969.55,176160.36],"25":[27574.02,35506.57,43637.4,52077.51,60792.43,69913.19,79256.26,88987.39,98907.87,87426.56,97420.19,107566.24,118115.5,129350.79,140835.72,152440.08,164730.85,177275.99,190293.91,162816.16,175324.9,180791.53,186491.23,192902.09,199237.78,205400.32],"50":[28207.72,36690.36,45403.05,54447.77,63826.92,73529.96,83589.01,94088.74,104986.23,93003.87,103866.15,115042.73,126649.49,138754.45,151301.03,164149.38,177585.93,191388.14,205867.53,176765.96,190220.6,197406.26,204676.51,212218.95,219887.52,228414.47],"75":[28871.66,37750.22,46965.35,56582.25,66600.43,77052.31,87905.04,99176.12,110902.99,98605.81,110192.93,122376.97,135116.14,148341.1,161967.73,176231.24,190988.11,206327.37,222116.42,190859.06,206463.06,215160.28,223963.27,233123.27,242878.42,252896.1],"95":[29693.88,39196.0,49093.12,59473.86,70415.71,81939.16,93787.71,106137.54,119184.05,106274.0,119350.3,133023.14,147309.74,162161.54,177688.05,194316.45,211117.47,229225.05,247628.31,213407.49,231047.37,242056.29,253362.46,265235.59,277350.19,290600.56]}},"hist":{"paid_in_eur":171200.0,"paid_in_real_eur":143803.57,"terminal_eur":{"5":168949.15,"25":200171.7,"50":225685.79,"75":254382.08,"95":303056.75},"real_terminal_eur":{"5":100960.51,"25":119618.46,"50":134865.15,"75":152013.46,"95":181100.44},"withdrawn_eur":{"5":55957.9,"25":62143.06,"50":66976.05,"75":72233.96,"95":80881.97},"received_eur":{"5":227526.71,"25":263815.2,"50":292681.01,"75":325620.88,"95":379934.58},"real_received_eur":{"5":143519.63,"25":165699.59,"50":183364.41,"75":203498.52,"95":236635.49},"withdrawals":[{"year":10,"eur":{"5":19527.29,"25":21506.85,"50":23048.06,"75":24775.01,"95":27415.02}},{"year":20,"eur":{"5":34903.17,"25":39856.18,"50":43791.13,"75":48094.89,"95":55324.7}}],"multiple_of_paid_in":{"5":1.329,"25":1.541,"50":1.71,"75":1.902,"95":2.219},"irr_pct":{"5":1.99,"25":2.97,"50":3.65,"75":4.34,"95":5.3},"p_below_paid_in":0.01,"p_real_below_paid_in":5.12,"median_maxdd_pct":-6.62,"worst_maxdd_pct":-15.53,"fan":{"years":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26],"5":[26157.94,33269.51,40615.15,48066.62,55920.56,63921.68,71871.19,80365.22,88780.83,78109.14,86691.55,95587.77,104581.83,113689.91,123252.23,133055.6,143123.1,153403.18,163567.61,139612.69,150326.36,153850.57,157420.71,161126.3,165018.45,168949.15],"25":[27264.33,35111.97,43169.99,51522.32,60184.5,69124.02,78255.98,87773.94,97536.75,86027.4,95938.3,106007.86,116492.1,127310.77,138149.62,149467.81,161229.05,173623.37,186269.49,159424.72,171757.47,176879.76,182374.46,188046.65,194142.42,200171.7],"50":[28058.67,36422.2,45071.0,54107.79,63402.87,73079.39,83080.98,93477.08,104130.27,92192.24,103133.44,114213.62,125708.02,137687.46,150026.49,162686.19,175895.58,189685.73,203978.89,175164.52,188767.05,195377.21,202742.35,210079.39,217677.16,225685.79],"75":[28874.08,37774.04,47072.2,56810.84,66845.34,77377.8,88256.98,99561.89,111396.33,99100.03,110795.43,123024.36,135865.47,149174.93,163080.46,177284.37,192141.82,207534.78,223883.78,192379.54,207886.75,216433.33,225388.57,235022.33,244983.82,254382.08],"95":[30100.53,39914.0,50086.23,60759.07,72057.05,84050.67,96439.29,109419.6,122784.06,109660.06,123126.45,137124.4,152174.5,167912.73,183880.15,200700.1,218161.22,236533.98,256595.61,221298.8,239802.37,251421.1,263085.21,275931.11,289544.97,303056.75]}},"paid_by_year":[27200.0,34400.0,41600.0,48800.0,56000.0,63200.0,70400.0,77600.0,84800.0,92000.0,99200.0,106400.0,113600.0,120800.0,128000.0,135200.0,142400.0,149600.0,156800.0,164000.0,171200.0,178400.0,185600.0,192800.0,200000.0,207200.0]}}},"funds":{"funds":{"World":{"isin":"IE000ZYRH0Q7","ter":0.06,"sleeve":"rv","name":"iShares Developed World Index Fund (IE) S Acc EUR","en":"Developed-world companies","corto":"Empresas de países ricos","en_plain":"Shares in about 1,400 large companies across the US, Europe and Japan. The engine of the portfolio.","llano":"Acciones de unas 1.400 grandes empresas de EE. UU., Europa y Japón. Es el motor de la cartera."},"EM":{"isin":"IE000QAZP7L2","ter":0.16,"sleeve":"rv","name":"iShares Emerging Markets Index Fund (IE) S Acc EUR","en":"Emerging-market companies","corto":"Empresas de países emergentes","en_plain":"Shares in companies from China, India, Brazil, Taiwan. They grow faster but fall harder.","llano":"Acciones de empresas de China, India, Brasil, Taiwán… Crecen más rápido, pero caen más fuerte."},"SmallCap":{"isin":"IE00B42W3S00","ter":0.29,"sleeve":"rv","name":"Vanguard Global Small-Cap Index Fund Investor EUR Acc","en":"Small companies","corto":"Empresas pequeñas","en_plain":"Shares in small companies in rich countries. More risk and more reward over very long periods.","llano":"Acciones de empresas pequeñas de países ricos. Más riesgo y más recompensa a muy largo plazo."},"GlobalBond":{"isin":"IE00B18GC888","ter":0.15,"sleeve":"rf","name":"Vanguard Global Bond Index Fund EUR Hedged Acc","en":"Global bonds (intermediate)","corto":"Bonos globales (plazo medio)","en_plain":"Loans to governments and large companies worldwide, with the currency risk hedged away.","llano":"Préstamos a gobiernos y grandes empresas de todo el mundo, con el riesgo de divisa cubierto."},"ShortBond":{"isin":"IE0004ZP1ND3","ter":0.08,"sleeve":"rf","name":"iShares Global Aggregate 1-5 Year Bond Index (IE) S Acc EUR Hedged","en":"Global bonds (short-dated)","corto":"Bonos globales (plazo corto)","en_plain":"The same, but repayable in 1-5 years. The calmest part: it barely moves.","llano":"Lo mismo, pero a devolver en 1–5 años. Es la parte más tranquila: apenas se mueve."},"InflLinked":{"isin":"IE00B04GQR24","ter":0.12,"sleeve":"rf","name":"Vanguard Eurozone Inflation-Linked Bond Index Fund EUR Acc","en":"Inflation-linked bonds","corto":"Bonos ligados a la inflación","en_plain":"Bonds that pay more when prices rise. They protect against exactly what hurts a retiree most.","llano":"Bonos que pagan más si los precios suben. Protegen justo de lo que más daña a un jubilado."}},"order":["World","EM","SmallCap","GlobalBond","ShortBond","InflLinked"],"plans":{"58yo 60/40":{"weights_pct":{"World":45.0,"EM":8.0,"SmallCap":7.0,"GlobalBond":20.0,"ShortBond":12.0,"InflLinked":8.0},"initial_eur":{"World":9000.0,"EM":1600.0,"SmallCap":1400.0,"GlobalBond":4000.0,"ShortBond":2400.0,"InflLinked":1600.0},"monthly_eur":{"World":270.0,"EM":48.0,"SmallCap":42.0,"GlobalBond":120.0,"ShortBond":72.0,"InflLinked":48.0},"ter_pct":0.109,"rv_pct":60.0,"rf_pct":40.0,"ter_cost_year1_eur":21.86},"64yo 25/75":{"weights_pct":{"World":20.0,"EM":3.0,"SmallCap":2.0,"GlobalBond":25.0,"ShortBond":30.0,"InflLinked":20.0},"initial_eur":{"World":4000.0,"EM":600.0,"SmallCap":400.0,"GlobalBond":5000.0,"ShortBond":6000.0,"InflLinked":4000.0},"monthly_eur":{"World":120.0,"EM":18.0,"SmallCap":12.0,"GlobalBond":150.0,"ShortBond":180.0,"InflLinked":120.0},"ter_pct":0.108,"rv_pct":25.0,"rf_pct":75.0,"ter_cost_year1_eur":21.62}},"method_weights":{"58yo 60/40":{"Hand-set":{"World":45.0,"EM":8.0,"SmallCap":7.0,"GlobalBond":20.0,"ShortBond":12.0,"InflLinked":8.0},"HRP-in-sleeves":{"World":18.6,"EM":28.6,"SmallCap":12.8,"GlobalBond":5.5,"ShortBond":30.0,"InflLinked":4.5},"NCO-in-sleeves":{"World":44.9,"EM":15.1,"SmallCap":0.0,"GlobalBond":0.0,"ShortBond":39.3,"InflLinked":0.7},"HRP unconstrained":{"World":0.9,"EM":1.4,"SmallCap":0.6,"GlobalBond":13.4,"ShortBond":72.8,"InflLinked":10.9},"NCO min-var unconstrained":{"World":0.0,"EM":0.0,"SmallCap":0.0,"GlobalBond":0.0,"ShortBond":97.0,"InflLinked":2.9}},"64yo 25/75":{"Hand-set":{"World":20.0,"EM":3.0,"SmallCap":2.0,"GlobalBond":25.0,"ShortBond":30.0,"InflLinked":20.0},"HRP-in-sleeves":{"World":7.8,"EM":11.9,"SmallCap":5.3,"GlobalBond":10.4,"ShortBond":56.2,"InflLinked":8.4},"NCO-in-sleeves":{"World":18.7,"EM":6.3,"SmallCap":0.0,"GlobalBond":0.0,"ShortBond":73.8,"InflLinked":1.2},"HRP unconstrained":{"World":0.9,"EM":1.4,"SmallCap":0.6,"GlobalBond":13.4,"ShortBond":72.8,"InflLinked":10.9},"NCO min-var unconstrained":{"World":0.0,"EM":0.0,"SmallCap":0.0,"GlobalBond":0.0,"ShortBond":97.0,"InflLinked":2.9}}}}}</script>
+<script>
+const ALL=JSON.parse(document.getElementById('data').textContent);
+const D=ALL.dca, FD=ALL.funds;
+const KEYS=Object.keys(D.people);
+const CS=getComputedStyle(document.documentElement); const cv=n=>CS.getPropertyValue(n).trim();
+const SH='http://www.w3.org/2000/svg';
+const el=(t,a={})=>{const e=document.createElementNS(SH,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const num=(x,d=2)=>Number(x).toFixed(d).replace('.',',');
+const eur=v=>Math.round(v).toLocaleString('es-ES')+' €';
+const eur2=v=>Number(v).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const pcs=(x,d=1)=>num(x,d)+' %';
+
+const tip=document.getElementById('tip');
+function showTip(ev,h){tip.innerHTML=h;tip.style.opacity=1;
+  const r=tip.getBoundingClientRect();let x=ev.clientX+15,y=ev.clientY-r.height-12;
+  if(x+r.width>innerWidth-8)x=ev.clientX-r.width-15; if(y<8)y=ev.clientY+18;
+  tip.style.left=x+'px';tip.style.top=y+'px';}
+function hideTip(){tip.style.opacity=0;}
+
+const SCEN=[{k:'cautious',n:'Hipótesis prudente'},{k:'repeat',n:'Si se repitiera 2014–2026'}];
+function fanMax(key){        // same y-axis for both scenarios, so the switch is honest
+  const P=D.people[key];
+  return Math.max(...SCEN.map(s=>Math.max(...P[s.k].fan['95'])));
+}
+function fanChart(key,scen){
+  const P=D.people[key],c=P[scen],f=c.fan,yrs=f.years,isA=key===KEYS[0];
+  const C1=cv(isA?'--fan-1':'--fan-1b'),C2=cv(isA?'--fan-2':'--fan-2b'),C3=cv(isA?'--fan-3':'--fan-3b');
+  const W=900,padL=108,padR=112,padT=26,padB=44,H=352;
+  const maxY=fanMax(key);
+  const x=i=>padL+(i/(yrs.length-1))*(W-padL-padR);
+  const y=v=>H-padB-(v/maxY)*(H-padT-padB);
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img',
+    'aria-label':`Saldo a lo largo del tiempo para la ${P.short}, escenario "${SCEN.find(s=>s.k===scen).n}", con el resultado central, el bueno y el malo frente al total aportado`});
+  const tick=maxY>1200000?400000:(maxY>600000?200000:100000);
+  for(let g=0;g<=maxY;g+=tick){
+    svg.appendChild(el('line',{x1:padL,x2:W-padR,y1:y(g),y2:y(g),stroke:cv('--rule-2')}));
+    const t=el('text',{x:padL-11,y:y(g)+4,fill:cv('--ink-3'),'font-size':11.5,'text-anchor':'end'});
+    t.textContent=eur(g);svg.appendChild(t);}
+  [0,Math.floor(yrs.length/2),yrs.length-1].forEach(i=>{
+    const t=el('text',{x:x(i),y:H-padB+19,fill:cv('--ink-3'),'font-size':11.5,'text-anchor':'middle'});
+    t.textContent=(P.age+yrs[i])+' años';svg.appendChild(t);});
+  const band=(a,b,fill)=>{
+    const p=yrs.map((_,i)=>`${x(i)},${y(f[a][i])}`)
+      .concat(yrs.map((_,i)=>`${x(yrs.length-1-i)},${y(f[b][yrs.length-1-i])}`));
+    svg.appendChild(el('polygon',{points:p.join(' '),fill,stroke:'none'}));};
+  band('5','95',C1);band('25','75',C2);
+  svg.appendChild(el('polyline',{points:yrs.map((_,i)=>`${x(i)},${y(f['50'][i])}`).join(' '),
+    fill:'none',stroke:C3,'stroke-width':2.5,'stroke-linejoin':'round'}));
+  svg.appendChild(el('polyline',{points:P.paid_by_year.map((v,i)=>`${x(i)},${y(v)}`).join(' '),
+    fill:'none',stroke:cv('--ink-2'),'stroke-width':2,'stroke-dasharray':'5 4'}));
+  const L=yrs.length-1;
+  // right-edge labels, pushed apart so they never overlap whatever the data does
+  const tags=[{v:f['95'][L],t:'bueno',c:C3},{v:f['50'][L],t:'central',c:C3},
+              {v:f['5'][L],t:'malo',c:C3},
+              {v:P.paid_by_year[L],t:'aportado',c:cv('--ink-2')}]
+    .map(o=>({...o,yy:y(o.v)+4})).sort((a,b)=>a.yy-b.yy);
+  for(let i=1;i<tags.length;i++)
+    if(tags[i].yy-tags[i-1].yy<14) tags[i].yy=tags[i-1].yy+14;
+  const drawTags=()=>tags.forEach(o=>{
+    const t=el('text',{x:W-padR+9,y:o.yy,fill:o.c,'font-size':11.5,'font-weight':600});
+    t.textContent=o.t;svg.appendChild(t);});
+  // mark each withdrawal year so the step down is obviously deliberate
+  (c.withdrawals||[]).forEach(wd=>{
+    const j=yrs.indexOf(wd.year); if(j<0) return;
+    svg.appendChild(el('line',{x1:x(j),x2:x(j),y1:padT+11,y2:H-padB,stroke:cv('--ink-3'),
+      'stroke-width':1,'stroke-dasharray':'2 3',opacity:.55}));
+    const t=el('text',{x:x(j)+5,y:padT+6,fill:cv('--ink-3'),'font-size':10.5});
+    t.textContent='saca 20 %';svg.appendChild(t);});
+  drawTags();
+  const cl=el('line',{y1:padT-4,y2:H-padB,stroke:cv('--ink-3'),'stroke-width':1,opacity:0});
+  svg.appendChild(cl);
+  const hit=el('rect',{x:padL,y:padT-4,width:W-padL-padR,height:H-padT-padB+4,fill:'transparent',class:'hit'});
+  hit.addEventListener('mousemove',ev=>{
+    const r=hit.getBoundingClientRect();
+    const j=Math.max(0,Math.min(L,Math.round(((ev.clientX-r.left)/r.width)*L)));
+    cl.setAttribute('x1',x(j));cl.setAttribute('x2',x(j));cl.setAttribute('opacity',.45);
+    showTip(ev,`<b>${P.age+yrs[j]} años</b><br>aportado hasta aquí ${eur(P.paid_by_year[j])}<br><br>
+      bueno (1 de 20) ${eur(f['95'][j])}<br><b>central ${eur(f['50'][j])}</b><br>malo (1 de 20) ${eur(f['5'][j])}`);});
+  hit.addEventListener('mouseleave',()=>{cl.setAttribute('opacity',0);hideTip();});
+  svg.appendChild(hit);
+  const d=document.createElement('div');d.className='plot';d.appendChild(svg);
+  const lg=document.createElement('div');lg.className='legend';
+  lg.innerHTML=`<span><i class="swatch line" style="background:${C3}"></i>resultado central</span>
+    <span><i class="swatch" style="background:${C2}"></i>la mitad habitual de los futuros</span>
+    <span><i class="swatch" style="background:${C1}"></i>9 de cada 10 futuros</span>
+    <span><i class="swatch line" style="background:${cv('--ink-2')}"></i>total aportado</span>`;
+  const box=document.createElement('div');box.appendChild(d);box.appendChild(lg);return box;
+}
+
+function personBlock(key,mount){
+  const P=D.people[key],c=P.cautious,m=document.getElementById(mount);
+  const cap=P.short.charAt(0).toUpperCase()+P.short.slice(1);
+  m.innerHTML=`
+    <div class="head"><h3>${cap}</h3>
+      <span class="chip">${P.mix}</span>
+      <span class="chip">aporta hasta los 85, hasta los 90 en total</span>
+      <span class="chip">comisiones ya descontadas</span></div>
+    <div class="answer">
+      <div><div class="k">Total aportado</div><div class="v pin tnum">${eur(c.paid_in_eur)}</div>
+        <div class="s">20.000 € más 600 € al mes durante ${P.contrib_years} años</div></div>
+      <div><div class="k">Recibido en total</div><div class="v mid tnum">${eur(c.received_eur['50'])}</div>
+        <div class="s">${num(c.multiple_of_paid_in['50'],1)}× lo aportado · lo sacado más lo que queda</div></div>
+      <div><div class="k">Caso malo (1 de cada 20)</div><div class="v tnum">${eur(c.received_eur['5'])}</div>
+        <div class="s">aún más de lo aportado — antes de descontar la subida de precios</div></div>
+      <div><div class="k">Caso bueno (1 de cada 20)</div><div class="v tnum">${eur(c.received_eur['95'])}</div>
+        <div class="s">un crecimiento anual de en torno al ${pcs(c.irr_pct['95'],2)}</div></div>
+    </div>
+    <div class="answer" style="margin-top:6px">
+      ${c.withdrawals.map((wd,i)=>`<div><div class="k">Sacado a los ${P.age+wd.year} años</div>
+        <div class="v tnum" style="font-size:1.6rem">${eur(wd.eur['50'])}</div>
+        <div class="s">el 20 % de la hucha · entre ${eur(wd.eur['5'])} y ${eur(wd.eur['95'])}</div></div>`).join('')}
+      <div><div class="k">Queda al final</div><div class="v tnum" style="font-size:1.6rem">${eur(c.terminal_eur['50'])}</div>
+        <div class="s">a los 90 años, después de las dos retiradas</div></div>
+      <div><div class="k">Sacado en total</div><div class="v tnum" style="font-size:1.6rem">${eur(c.withdrawn_eur['50'])}</div>
+        <div class="s">sumando las dos retiradas</div></div>
+    </div>
+    <div class="today"><b>En dinero de hoy, lo recibido en total son ${eur(c.real_received_eur['50'])}</b>, no ${eur(c.received_eur['50'])}.
+      Los precios suben, así que un euro dentro de ${P.horizon_years} años compra menos que un euro ahora. Medido así,
+      los ${eur(c.paid_in_eur)} aportados valen en realidad ${eur(c.paid_in_real_eur)}, y el plan los multiplica
+      por unas ${num(c.real_received_eur['50']/c.paid_in_real_eur,1)} veces. En el caso malo se queda en
+      ${eur(c.real_received_eur['5'])} — parecido al poder de compra del dinero que se puso, y poco más.
+      Hay un <b>${pcs(c.p_real_below_paid_in,2)} de probabilidad</b> de acabar con menos poder de compra del aportado.</div>`;
+  const tg=document.createElement('div'); tg.className='toggle';
+  tg.innerHTML='<span class="lbl">¿Qué suponemos que hacen los mercados?</span>'
+    +SCEN.map((sc,i)=>`<button type="button" data-s="${sc.k}" aria-pressed="${i===0}">${sc.n}</button>`).join('');
+  const holder=document.createElement('div');
+  m.appendChild(tg); m.appendChild(holder);
+  function render(scen){
+    holder.innerHTML='';
+    holder.appendChild(fanChart(key,scen));
+    tg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===scen));
+  }
+  tg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>render(b.dataset.s)));
+  render('cautious');
+  const cp=document.createElement('p');cp.className='caption';
+  cp.innerHTML='La línea discontinua es el dinero aportado; la línea de color es lo que hay en la hucha. '
+    +'Los dos escalones hacia abajo son las retiradas del 20 % — no son pérdidas, es dinero que sale. '
+    +'Fíjese en que el abanico sigue ensanchándose después de cada retirada: al sacar un porcentaje y no una '
+    +'cantidad fija, la hucha se reduce pero nunca se queda a cero.<br><br>'
+    +'<b>Los dos botones cambian la única suposición que de verdad manda:</b> qué rentabilidad damos por buena. '
+    +'«Prudente» es la que usamos en toda la página. «Si se repitiera 2014–2026» reproduce la última década tal cual. '
+    +'La escala vertical es la misma en los dos, para que la diferencia se vea de verdad. Cantidades antes de '
+    +'descontar la subida de precios.';
+  m.appendChild(cp);
+}
+personBlock(KEYS[0],'p-58');personBlock(KEYS[1],'p-64');
+
+(function(){
+  const blocks=KEYS.map(k=>{
+    const P=D.people[k],pl=FD.plans[k];
+    const seg=FD.order.map((f,i)=>{
+      const col=FD.funds[f].sleeve==='rv'?cv('--a'):cv('--rf');
+      return `<i style="width:${pl.weights_pct[f]}%;background:${col};opacity:${1-i*0.1}"></i>`;}).join('');
+    const rows=FD.order.map(f=>{
+      const fu=FD.funds[f];
+      return `<div class="fundrow">
+        <div class="what"><b>${fu.corto}</b><span>${fu.llano}</span>
+          <code>${fu.isin} · comisión ${num(fu.ter,2)} % al año</code></div>
+        <div class="amt"><b>${eur2(pl.monthly_eur[f])}</b>
+          <span>al mes · ${num(pl.weights_pct[f],1)} %</span><br>
+          <span>${eur(pl.initial_eur[f])} del inicio</span></div></div>`;}).join('');
+    return `<div class="person" style="margin-top:26px">
+      <div class="head"><h3>${P.short.charAt(0).toUpperCase()+P.short.slice(1)}</h3>
+        <span class="chip">${P.mix}</span></div>
+      <div class="mixbar">${seg}</div>
+      <div class="mixkey">
+        <span><i class="swatch" style="background:${cv('--a')}"></i>acciones ${num(pl.rv_pct,0)} %</span>
+        <span><i class="swatch" style="background:${cv('--rf')}"></i>bonos ${num(pl.rf_pct,0)} %</span></div>
+      <div style="margin-top:14px">${rows}</div></div>`;});
+  document.getElementById('fund-blocks').innerHTML=blocks.join('');
+  const A=D.people[KEYS[0]], pl=FD.plans[KEYS[0]];
+  document.getElementById('ter-pct').textContent=num(pl.ter_pct,2)+' %';
+  document.getElementById('ter-eur').textContent=eur(pl.ter_cost_year1_eur);
+  const drag=(1-Math.pow(1-pl.ter_pct/100,A.horizon_years))*100;
+  document.getElementById('ter-drag').textContent=num(drag,1)+' %';
+})();
+
+(function(){
+  const cards=KEYS.map(k=>{
+    const P=D.people[k],c=P.cautious;
+    const dropEur=Math.abs(c.median_maxdd_pct/100)*c.terminal_eur['50'];
+    return `<div class="card flag"><div class="big">${num(c.median_maxdd_pct,1)} %</div>
+      <h3>${P.short.charAt(0).toUpperCase()+P.short.slice(1)}: la caída habitual más fuerte</h3>
+      <p>En un futuro típico el saldo baja esto desde su punto más alto en algún momento. En el peor 1 de cada 100
+      futuros cae un <b>${num(c.worst_maxdd_pct,1)} %</b>. Sobre un saldo del tamaño del resultado central, una
+      caída del ${num(Math.abs(c.median_maxdd_pct),0)} % son unos ${eur(dropEur)} de pérdidas sobre el papel.</p></div>`;});
+  cards.push(`<div class="card"><div class="big">${num(D.people[KEYS[0]].ann_vol_pct,2)} % vs ${num(D.people[KEYS[1]].ann_vol_pct,2)} %</div>
+    <h3>Por qué se diferencian</h3>
+    <p>Es cuánto se mueve cada mezcla en un año. La de la ${D.people[KEYS[0]].short} se mueve casi el doble que la de la
+    ${D.people[KEYS[1]].short}. Ese es el precio de un resultado central más alto — no un defecto del plan, sino
+    aquello para lo que hay que estar preparado.</p></div>`);
+  document.getElementById('risk').innerHTML=cards.join('');
+})();
+
+(function(){
+  const A=D.people[KEYS[0]],B=D.people[KEYS[1]];
+  const pct=v=>num(v,1).replace(',0','');
+  const yr=s=>s.slice(0,4);
+  const bd=B.repeat.terminal_eur['50']-B.cautious.terminal_eur['50'];
+  document.getElementById('optimism').innerHTML=`
+    <h3>Si los últimos doce años se repitiesen sin más</h3>
+    <p>La ${A.short} acabaría con unos <b>${eur(A.repeat.terminal_eur['50'])}</b> en lugar de
+    ${eur(A.cautious.terminal_eur['50'])} — casi el doble. Pero la ${B.short} acabaría algo <b>peor</b>:
+    ${eur(B.repeat.terminal_eur['50'])} en lugar de ${eur(B.cautious.terminal_eur['50'])}, unos
+    ${eur(Math.abs(bd))} menos.</p>
+    <p>Precisamente por esa diferencia no usamos esas cifras. Entre ${yr(D.meta.sample_start)} y
+    ${yr(D.meta.sample_end)} a las acciones les fue inusualmente bien y a los bonos inusualmente mal — así que
+    repetir ese periodo premia a quien tenga más acciones y castiga a quien tenga más bonos. Describe esa
+    década, no la siguiente.</p>
+    <p>Las cifras de esta página suponen en cambio que las acciones crecen un
+    <b>${pct(D.meta.fwd_equity_pct)} % al año</b> y los bonos un <b>${pct(D.meta.fwd_bond_pct)} % al año</b>,
+    menos la comisión de los fondos, más cerca de lo que se espera normalmente a largo plazo. Si un plan solo
+    funciona cuando el pasado reciente se repite, no es un plan.</p>`;
+})();
+
+document.getElementById('foot').textContent=
+  `Basado en el comportamiento real, mes a mes, de siete fondos entre ${D.meta.sample_start.slice(0,4)} y `
+  +`${D.meta.sample_end.slice(0,4)} (${D.meta.sample_months} meses de datos). `
+  +`${D.meta.n_sim.toLocaleString('es-ES')} futuros probados por persona. Subida de precios supuesta del `
+  +`${num(D.meta.inflation_pct,0)} % al año. Aportaciones hasta los 85 años y dos retiradas del 20 % del valor, `
+  +`a los 10 y a los 20 años. Cifras netas de los gastos corrientes de los fondos; sin comisión `
+  +`de custodia. Un límite importante: los datos no incluyen la crisis financiera de 2008, así que las caídas `
+  +`mostradas aquí son probablemente más suaves que las de una crisis real. No es asesoramiento financiero.`;
+</script>

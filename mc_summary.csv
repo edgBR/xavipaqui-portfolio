@@ -1,0 +1,11 @@
+Portfolio,Method,Eq%,Vol%,fwd med,fwd p5,boot med,boot p5,P(real loss)%
+58yo 60/40,Hand-set,60.0,8.6,4.52,2.01,7.43,5.44,4.94
+58yo 60/40,HRP-in-sleeves,60.0,8.4,4.51,2.07,6.47,4.28,4.54
+58yo 60/40,NCO-in-sleeves,60.0,7.9,4.59,2.28,7.16,5.25,3.21
+58yo 60/40,HRP unconstrained,2.8,2.5,3.26,2.53,0.93,0.02,0.24
+58yo 60/40,NCO min-var unconstrained,0.0,1.8,3.21,2.66,0.48,-0.32,0.01
+64yo 25/75,Hand-set,25.0,5.0,3.76,2.17,3.71,2.27,3.53
+64yo 25/75,HRP-in-sleeves,25.0,4.4,3.79,2.39,3.1,1.67,1.82
+64yo 25/75,NCO-in-sleeves,25.0,3.8,3.83,2.6,3.26,2.01,0.7
+64yo 25/75,HRP unconstrained,2.8,2.5,3.26,2.46,0.93,-0.08,0.45
+64yo 25/75,NCO min-var unconstrained,0.0,1.8,3.21,2.61,0.48,-0.4,0.03

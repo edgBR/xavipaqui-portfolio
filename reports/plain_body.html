@@ -1,0 +1,128 @@
+<div class="wrap">
+<header>
+  <p class="eyebrow">Un plan de ahorro, explicado con claridad</p>
+  <h1>Seiscientos<br>al mes</h1>
+  <p class="lede">Dos personas ponen <b>20.000 €</b> al principio y después <b>600 € cada mes hasta los 85 años</b>. Por el camino sacan <b>el 20 % dos veces</b>: a los 10 y a los 20 años. Esta página muestra cuánto podrían recibir en total — <b>lo probable, lo bueno y lo malo</b> — y dice sin rodeos qué puede salir mal. Sin jerga. Cada palabra difícil está explicada al final.</p>
+  <div class="plan">
+    <div><div class="num">20.000 €</div><div class="t">Aportados al principio</div></div>
+    <div><div class="num">600 €</div><div class="t">Añadidos cada mes, hasta los 85 años</div></div>
+    <div><div class="num">20 % × 2</div><div class="t">Sacado a los 10 y a los 20 años</div></div>
+    <div><div class="num">20.000</div><div class="t">Futuros posibles probados por persona</div></div>
+  </div>
+</header>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Cómo leer esta página</p>
+    <h2>Nadie sabe qué harán los mercados. Así que probamos 20.000 versiones del futuro.</h2>
+    <p class="col">Esto no es una predicción. Es una forma de mostrar el <em>abanico</em> de cosas que podrían pasar, y lo probable que es cada una.</p>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h3>Inventar un futuro</h3><p>El ordenador se inventa una sucesión de meses buenos y malos, mes a mes, a partir de cómo se han comportado estos fondos en realidad.</p></div>
+    <div class="step"><div class="n">2</div><h3>Seguir el dinero</h3><p>Añade los 600 €, aplica la subida o bajada de ese mes, y repite — cada mes, durante 26 o 32 años. A los 10 y a los 20 años saca el 20 % de lo que haya.</p></div>
+    <div class="step"><div class="n">3</div><h3>Hacerlo 20.000 veces</h3><p>Después ordena todos los finales. Contamos el del medio y también los extremos: el mejor y el peor 1 de cada 20.</p></div>
+  </div>
+  <div class="today" style="margin-top:30px;max-width:66ch">
+    <b>Dos palabras que hacen falta ya.</b> Las <b>acciones</b> son trocitos de propiedad de empresas: a largo plazo son lo que más ha crecido, pero pueden caer un tercio en un año malo. Los <b>bonos</b> son préstamos a gobiernos y grandes empresas que pagan intereses: crecen menos, pero se mueven mucho menos. Una cartera «60 / 40» tiene 60 % en acciones y 40 % en bonos.
+  </div>
+  <div class="today" style="max-width:66ch">
+    <b>Sacar el 20 % es sacar un porcentaje, no una cantidad fija.</b> Eso importa mucho: si el mercado ha ido mal, se saca menos dinero, así que la hucha nunca se puede vaciar. Sacar «2.000 € al mes pase lo que pase» sí puede vaciarla. Es la diferencia entre un plan que se adapta y uno que no.
+  </div>
+  <div class="today" style="max-width:66ch">
+    <b>Y las comisiones ya están descontadas.</b> Todas las cifras de esta página son <b>después</b> de restar lo que cobran los fondos. No incluyen, en cambio, ninguna comisión de custodia del banco: MyInvestor no cobra ninguna por fondos, pero otros sí, y eso habría que restarlo aparte.
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Persona uno</p>
+    <h2>La persona de 58 años</h2>
+    <p class="col">Una mezcla más atrevida, porque queda más tiempo antes de necesitar el dinero. Más acciones significa más crecimiento de media, pero también caídas más grandes por el camino.</p>
+  </div>
+  <div class="person" id="p-58"></div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Persona dos</p>
+    <h2>La persona de 64 años</h2>
+    <p class="col">Una mezcla más prudente. Menos crecimiento, pero el valor se mueve mucho menos — lo que importa cuando el dinero puede necesitarse antes.</p>
+  </div>
+  <div class="person" id="p-64"></div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">En qué se invierte el dinero</p>
+    <h2>Los seis fondos, y cuánto va a cada uno.</h2>
+    <p class="col">El dinero no va a un solo sitio: se reparte entre seis fondos muy baratos, cada uno con un trabajo distinto. Esto es lo que recibe cada uno de los 600 € mensuales. Al sacar el 20 %, se saca ese 20 % de cada fondo, de modo que la mezcla no cambia.</p>
+  </div>
+  <div id="fund-blocks"></div>
+  <div class="today" style="max-width:66ch">
+    <b>Lo que cuesta.</b> Estos fondos cobran una comisión anual muy baja: en conjunto, alrededor del <b id="ter-pct"></b> al año — unos <b id="ter-eur"></b> al año sobre 20.000 €. Ya está restada de todas las cifras anteriores. A lo largo de los 32 años de la persona de 58, esa comisión se lleva en torno a un <b id="ter-drag"></b> del resultado final. Parece poco, y lo es: una comisión del 1,5 % en lugar del 0,11 % se llevaría cerca de un tercio.
+  </div>
+  <p class="caption" style="max-width:66ch">Los códigos <code style="font-family:ui-monospace,monospace;font-size:.85em">ISIN</code> son el nombre oficial de cada fondo — son lo que hay que dar al banco para comprar el correcto, porque muchos fondos tienen nombres casi idénticos. Los datos se comprobaron el 8 de septiembre de 2026; conviene confirmarlos antes de contratar.</p>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">La parte incómoda</p>
+    <h2>El valor bajará algunas veces. Hay que contar con ello.</h2>
+    <p class="col">Esto no son líneas suaves que suben. En un futuro típico, el saldo baja desde su punto más alto más o menos esto en algún momento — y en uno malo, bastante más.</p>
+  </div>
+  <div class="cards" id="risk"></div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Por qué estas cifras son deliberadamente prudentes</p>
+    <h2>El pasado reciente es una mala guía — en los dos sentidos.</h2>
+  </div>
+  <div class="callout" id="optimism"></div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Que quede claro</p>
+    <h2>Tres cosas que esta página no hace.</h2>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <h3>Supone que se aporta hasta los 85</h3>
+      <p>Los 600 € al mes siguen entrando hasta los 85 años, y después el dinero se deja quieto hasta los 90. Para la persona de 58 son 27 años de aportaciones; para la de 64, 21 años. Si hay que parar antes, las cifras bajan y habría que recalcularlas.</p>
+    </div>
+    <div class="card">
+      <h3>Solo saca dinero dos veces</h3>
+      <p>Dos retiradas del 20 %, separadas diez años. Una jubilación real se gasta poco a poco, mes a mes, y eso es algo más arriesgado: se está vendiendo constantemente, también en los años malos. Estas cifras son, por tanto, la versión más benévola.</p>
+    </div>
+    <div class="card">
+      <h3>No es asesoramiento financiero</h3>
+      <p>Es aritmética sobre cómo se ha comportado una mezcla de fondos, no una recomendación de compra. Un asesor cualificado que conozca la pensión, los ingresos y la situación fiscal de cada uno es una conversación distinta y necesaria.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <p class="eyebrow">Palabras claras</p>
+    <h2>Qué significan los términos.</h2>
+  </div>
+  <dl class="gloss col">
+    <div><dt>Acciones</dt><dd>Pequeñas partes de propiedad de empresas. A lo largo de periodos largos son lo que más ha crecido, pero pueden caer un tercio o más en un año malo.</dd></div>
+    <div><dt>Bonos</dt><dd>Préstamos a gobiernos y grandes empresas que pagan intereses. Normalmente crecen menos que las acciones, pero suben y bajan mucho menos.</dd></div>
+    <div><dt>En dinero de hoy</dt><dd>Los precios suben con el tiempo, así que 1 € dentro de treinta años compra menos que 1 € ahora. «En dinero de hoy» quiere decir que ya hemos descontado eso, para poder compararlo con precios que se conocen. Supusimos que los precios suben un 2 % al año.</dd></div>
+    <div><dt>1 de cada 20</dt><dd>De los 20.000 futuros probados, los ordenamos y miramos el punto donde solo un 5 % salió peor. Es un caso malo, no el peor imaginable.</dd></div>
+    <div><dt>Crecimiento anual</dt><dd>El único ritmo de crecimiento constante que habría producido el mismo final, teniendo en cuenta que el dinero entró poco a poco y no todo de golpe.</dd></div>
+    <div><dt>Caída desde el punto más alto</dt><dd>Cuánto bajó el saldo desde su mejor nivel antes de recuperarse. Es la cifra que hace que la gente entre en pánico y venda — que suele ser justo el error.</dd></div>
+    <div><dt>Comisión (o «gastos corrientes»)</dt><dd>Lo que el fondo cobra cada año por gestionar el dinero, descontado día a día del valor. No se paga aparte: ya viene restado del precio que se ve.</dd></div>
+    <div><dt>Retirada (sacar dinero)</dt><dd>Vender una parte de los fondos para tener el dinero disponible. Aquí se saca el 20 % de lo que haya en ese momento, no una cantidad fija — así que en un año malo se saca menos, y la hucha nunca llega a vaciarse.</dd></div>
+    <div><dt>Fondo indexado</dt><dd>Un fondo que no intenta elegir empresas ganadoras: simplemente compra todas las de una lista. Por eso es tan barato, y por eso a largo plazo suele ganar a los que sí intentan elegir.</dd></div>
+    <div><dt>ISIN</dt><dd>El código oficial de doce caracteres que identifica un fondo de forma única. Es lo que hay que dar al banco para no comprar el fondo equivocado.</dd></div>
+  </dl>
+</section>
+
+<footer id="foot"></footer>
+</div>
+
+<div id="tip" role="status" aria-live="polite"></div>
+<script type="application/json" id="data">__DATA__</script>

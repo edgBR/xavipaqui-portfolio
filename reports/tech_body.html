@@ -1,0 +1,287 @@
+<div class="wrap">
+<header>
+  <div class="kicker"><span class="dot"></span><span class="eyebrow">Monte Carlo · 20,000 paths · Sept 2026</span></div>
+  <h1>Two retirements,<br>five methods</h1>
+  <p class="lede">A 60/40 portfolio for a 58-year-old and a 25/75 for a 64-year-old — contributing until 85, taking 20 % out at years 10 and 20, held to 90 — under five weighting methods and three return engines. <strong>The methods barely disagree. The engines disagree enormously</strong> — which means any ranking you read off a Monte Carlo here is the return assumption talking, not the optimiser.</p>
+  <div class="provenance">
+    <b>Data</b> — seven funds fetched by <span class="mono">fetch_navs.py</span> (FT Markets, Morningstar via mstarpy, Yahoo proxies). Covariance from the <b>149-month common window, 2014-04 → 2026-08</b>. Weights from <span class="mono">hrp_nco.py</span>; projection from <span class="mono">monte_carlo.py</span>.<br>
+    <b>Cash flows</b> — contributions run to age 85, then the capital is left alone to 90. Two withdrawals of <b>20 % of the then-current value</b> land at years 10 and 20 (ages 68 &amp; 78, and 74 &amp; 84). They apply to <b>every</b> path, the lump-sum cases included, so returns here are money-weighted (IRR) rather than simple CAGR.<br>
+    <b>Not advice</b> — this is how the pieces behave arithmetically, not a recommendation to buy anything.
+  </div>
+</header>
+
+<div class="tiles" id="tiles"></div>
+
+<section>
+  <div class="shead">
+    <span class="eyebrow">Minimum vocabulary</span>
+    <h2>The objects, the optimiser and the engine.</h2>
+    <p>Written for someone fluent in statistics and mathematics but not in finance. The machinery will be familiar; what needs pinning down are the three or four financial terms.</p>
+  </div>
+  <div class="prose">
+    <h3>The objects</h3>
+    <p>A portfolio is a weight vector <span class="tex" data-tex="w">w</span> on the simplex: <span class="tex" data-tex="w_i \ge 0">wᵢ ≥ 0</span>, <span class="tex" data-tex="\textstyle\sum_i w_i = 1">Σwᵢ = 1</span>. Each weight is the fraction of the money held in one fund.</p>
+    <p>The six funds' monthly returns form a random vector <span class="tex" data-tex="r">r</span> with mean vector <span class="tex" data-tex="\mu">μ</span> and covariance matrix <span class="tex" data-tex="\Sigma">Σ</span>. Because a portfolio return is a linear combination, <span class="tex" data-tex="w^{\top} r">w^T r</span>, everything else follows:</p>
+    <div class="tex-block" data-tex="\mathbb{E}\!\left[w^{\top} r\right] = w^{\top}\mu \qquad\qquad \operatorname{Var}\!\left(w^{\top} r\right) = w^{\top}\Sigma w">expected return = w^T μ          variance = w^T Σ w</div>
+    <p>That is, literally, all the theory required. <b>"Equity" and "bonds" are not theoretical categories</b> — they are assets with large or small diagonal entries in <span class="tex" data-tex="\Sigma">Σ</span>: 13–16 % against 1.8–6 % annualised standard deviation. Two financial terms worth pinning down:</p>
+    <div class="deflist">
+      <div><b>Volatility</b><span>Annualised standard deviation of returns. Nothing more than that.</span></div>
+      <div><b>Drawdown</b><span>The minimum of <span class="tex" data-tex="\tfrac{V_t}{\max_{s\le t} V_s} - 1">Vₜ / max(V₁…ₜ) − 1</span> along the path: the worst decline from a prior peak. It is the quantity that makes people sell at the worst possible moment, so it matters behaviourally and not only statistically.</span></div>
+    </div>
+
+    <h3>The optimiser: a function <span class="tex" data-tex="(\Sigma,\ \text{sometimes } \mu) \mapsto w">(Σ, sometimes μ) → w</span></h3>
+    <p><b>HRP</b> (<i>Hierarchical Risk Parity</i>) uses machinery you already have. It converts correlation into a proper metric distance <span class="tex" data-tex="d = \sqrt{\tfrac{1-\rho}{2}}">d = √((1−ρ)/2)</span>, builds a single-linkage dendrogram, reorders <span class="tex" data-tex="\Sigma">Σ</span> to be quasi-diagonal, then allocates risk by recursively bisecting that dendrogram: at each split, each branch receives a share inversely proportional to its intra-cluster variance. It is the same procedure as clustering expression profiles from a distance matrix — only what the distance measures changes. <b>It never touches <span class="tex" data-tex="\mu">μ</span>.</b></p>
+    <p><b>NCO</b> (<i>Nested Clustered Optimization</i>) runs k-means on that same distance matrix, choosing <span class="tex" data-tex="k">k</span> by silhouette; solves minimum-variance within each cluster; then solves it again across the cluster representatives. The nesting exists to avoid inverting an ill-conditioned <span class="tex" data-tex="\Sigma">Σ</span> in one step: with 6 assets and 149 observations, <span class="tex" data-tex="\hat{\Sigma}^{-1}">Σ̂⁻¹</span> amplifies estimation noise brutally.</p>
+    <p><b>The hand-set weights are not an optimiser.</b> They are chosen by judgement about human circumstances — age, when the money is needed — that are not in the data and that no estimator can see.</p>
+
+    <h3>Why <span class="tex" data-tex="\sqrt{(1-\rho)/2}">√((1−ρ)/2)</span> and not just <span class="tex" data-tex="1-\rho">1−ρ</span></h3>
+    <p>Correlation is a <em>similarity</em>, not a distance, and clustering routines assume a metric space. A metric must be non-negative, zero only for identical objects, symmetric, and obey the triangle inequality. <b><span class="tex" data-tex="1-\rho">1−ρ</span> satisfies the first three and fails the last</b>, so it cannot be handed to a linkage algorithm without the hierarchy becoming arbitrary.</p>
+    <p>The transform fixes it, and the two pieces do separate jobs. The <span class="tex" data-tex="1-\rho">1−ρ</span> numerator is what inverts the sense — it turns "moves together" into "is close". The <span class="tex" data-tex="/2">/2</span> and the square root are what make the result an actual metric rather than a monotone rescaling:</p>
+    <div class="tex-block" data-tex="\begin{aligned} \rho = +1 \;&amp;\Rightarrow\; d = 0 &amp;&amp;\text{(identical)} \\ \rho = \phantom{+}0 \;&amp;\Rightarrow\; d = 1/\sqrt{2} \approx 0.707 \\ \rho = -1 \;&amp;\Rightarrow\; d = 1 &amp;&amp;\text{(maximally distant)} \end{aligned}">ρ = +1  →  d = 0            (identical)
+ρ =  0  →  d = 1/√2 ≈ 0.707
+ρ = −1  →  d = 1            (maximally distant)</div>
+    <p>The reason it works is that <span class="tex" data-tex="d">d</span> is a genuine <b>Euclidean distance</b> in disguise. Standardise each return series to zero mean and unit variance; then <span class="tex" data-tex="d(i,j)">d(i,j)</span> is exactly <span class="tex" data-tex="1/\sqrt{2T}">1/√(2T)</span> times the Euclidean norm of the difference between the two standardised vectors. So the assets really do sit in a metric space, and the triangle inequality holds because it holds in ℝ<sup>T</sup>.</p>
+    <p>One consequence is worth stating because it surprises people: <b>perfectly anti-correlated assets are maximally distant here, not close.</b> For risk clustering that is the right sign. Two assets that hedge each other belong in <em>different</em> branches, because putting them in the same bucket and then equalising risk within it would cancel out the very diversification you are trying to place.</p>
+
+    <h3>What "single linkage" means, and what it costs</h3>
+    <p>Agglomerative hierarchical clustering: start with every asset as its own cluster, repeatedly merge the two closest clusters, and record the distance at which each merge happened. The <b>linkage</b> is the rule for measuring distance between two <em>clusters</em> rather than two points:</p>
+    <div class="deflist">
+      <div><b>single</b><span>the <em>minimum</em> distance between any member of A and any member of B — nearest neighbour. This is what HRP specifies.</span></div>
+      <div><b>complete</b><span>the maximum such distance — farthest neighbour. Produces compact, ball-shaped clusters.</span></div>
+      <div><b>average / Ward</b><span>the mean over all cross-pairs; Ward instead merges whichever pair increases total within-cluster variance least.</span></div>
+    </div>
+    <p>The <b>dendrogram</b> is the resulting merge tree: leaves are assets, each internal node is a merge, and the node's height is the distance at which it occurred. Cutting the tree at a height gives you a clustering; HRP never cuts it, it walks it.</p>
+    <p>Single linkage is equivalent to building a minimum spanning tree, which means it <b>chains</b>: it will connect two barely-related assets through a chain of intermediaries, producing elongated clusters rather than compact ones. It is also the linkage most sensitive to noise, because a single spuriously-close pair can merge two otherwise distinct groups. With six assets this is nearly irrelevant — the equity/bond split is far too strong to be confused. With five hundred it matters a great deal. Treat it as a documented choice from the paper, not a demonstrably optimal one.</p>
+
+    <h3>Quasi-diagonalisation, and why <span class="tex" data-tex="\Sigma">Σ</span> cares</h3>
+    <p><span class="mono">quasi_diag()</span> extracts the dendrogram's <b>leaf order</b> — the left-to-right sequence of leaves when the tree is drawn without crossing branches — and permutes the rows and columns of <span class="tex" data-tex="\Sigma">Σ</span> into that order.</p>
+    <p>A matrix is <b>quasi-diagonal</b> when its large entries sit near the main diagonal and decay as you move away from it. That is precisely what the leaf order buys: assets that merged early (high correlation, small distance) end up adjacent, so their large covariances land next to the diagonal, while the far corners hold the near-zero cross-sleeve terms. It is a permutation only — no number in <span class="tex" data-tex="\Sigma">Σ</span> changes, just the labelling of the axes.</p>
+    <p>Three reasons this matters:</p>
+    <div class="deflist">
+      <div><b>It is what makes the recursive bisection meaningful</b><span>HRP allocates by splitting the ordered list in half, then in half again. That is only a sensible operation if <em>position in the list carries information</em> — if adjacent entries are genuinely similar. Quasi-diagonalisation is the step that makes "the first half" a real cluster rather than an arbitrary subset. Run the same bisection on an alphabetical ordering and the weights are meaningless.</span></div>
+      <div><b>It localises estimation error</b><span>A quasi-diagonal <span class="tex" data-tex="\Sigma">Σ</span> is approximately block-diagonal, and a block-diagonal matrix inverts block by block. Classical Markowitz needs <span class="tex" data-tex="\Sigma^{-1}">Σ⁻¹</span>, and inversion mixes every entry with every other, so one badly-estimated covariance contaminates every weight. HRP <b>never inverts anything</b> — it only ever compares within-cluster variances of adjacent blocks. An error in one corner of <span class="tex" data-tex="\Sigma">Σ</span> stays in that corner. This is the whole robustness argument, and it is a structural property, not a statistical one.</span></div>
+      <div><b>It is a free diagnostic</b><span>Look at the correlation matrix printed by <span class="mono">hrp_nco.py</span>: World / EM / SmallCap correlate 0.65–0.92 with one another and only 0.27–0.57 with the bond funds; GlobalBond and ShortBond correlate 0.92. Under the leaf order that is two dense blocks with a sparse off-diagonal region — visibly quasi-diagonal. If it did <em>not</em> come out that way, the hierarchy would be telling you these assets do not cluster, and HRP's premise would not hold for them.</span></div>
+    </div>
+
+    <h3>Why HRP and NCO discard <span class="tex" data-tex="\mu">μ</span></h3>
+    <p>Here is the statistical argument, and it is decisive. The standard error of the annualised mean is <span class="tex" data-tex="\sigma/\sqrt{T}">σ/√T</span>; that of the standard deviation is approximately <span class="tex" data-tex="\sigma/\sqrt{2(n-1)}">σ/√(2(n−1))</span>. With <span class="tex" data-tex="n = 149">n = 149</span> months:</p>
+  </div>
+  <div class="tablewrap" id="estim-table"></div>
+  <div class="prose" style="margin-top:22px">
+    <p>In relative terms <b>the mean is an order of magnitude noisier than the variance</b>. World's mean is 12.64 % with a 95 % confidence interval of <span class="tex" data-tex="[5.26\%,\ 20.02\%]">[5.26 %, 20.02 %]</span> — fifteen points wide, spanning "mediocre" to "spectacular". Narrowing it to ±1 point would take <b>176 years</b> of data. The bond funds are worse still: the standard error exceeds the estimate itself, so even the sign is undetermined.</p>
+    <p><span class="tex" data-tex="\Sigma">Σ</span>, on that same data, is estimated to 6 % relative error across every asset. Hence the whole López de Prado programme: <b>discard the hopeless estimator and keep the one that converges</b>. An optimiser consuming only <span class="tex" data-tex="\Sigma">Σ</span> is robust by construction, not by luck.</p>
+
+    <h3>The engine: a function <span class="tex" data-tex="w \mapsto \text{distribution of paths}">w → distribution of paths</span></h3>
+    <p>The optimiser answers "which weights?". The engine answers "and then what happens?" — it is the generative model for future paths. There are three, and the distinction is exactly <b>non-parametric versus parametric</b>.</p>
+  </div>
+  <div class="engine">
+    <article>
+      <h3><span class="tag">bootstrap</span> Non-parametric</h3>
+      <p>Politis–Romano stationary bootstrap: geometric block lengths (mean 12 months) with circular wrap-around. It resamples <b>whole rows</b>, so the cross-asset dependence structure is preserved empirically <i>without estimating <span class="tex" data-tex="\Sigma">Σ</span></i>; and because blocks are contiguous runs, some autocorrelation and volatility clustering survive too. Kurtosis and skew survive as well. The price: it cannot generate anything absent from the sample, and it inherits the sample's <span class="tex" data-tex="\hat{\mu}">μ̂</span> without declaring it.</p>
+    </article>
+    <article>
+      <h3><span class="tag">hist-mvn</span> Parametric, sample moments</h3>
+      <p>Lognormal returns with <span class="tex" data-tex="\hat{\mu}">μ̂</span> and <span class="tex" data-tex="\hat{\Sigma}">Σ̂</span>. Gaussian tail in logs, so it understates extreme events relative to the bootstrap. It is the comparison point that isolates the effect of imposing a parametric form.</p>
+    </article>
+    <article>
+      <h3><span class="tag">fwd-mvn</span> Parametric, with <span class="tex" data-tex="\mu">μ</span> replaced</h3>
+      <p>Identical to the above, swapping <span class="tex" data-tex="\hat{\mu}">μ̂</span> for an external estimate: 6 % equity, 3.3 % bonds. It is shrinkage toward a prior, justified by the table above — trading an unbiased estimator for one with far lower variance. This is the engine the headline figures on this page are read from.</p>
+    </article>
+  </div>
+  <div class="prose" style="margin-top:20px">
+    <p>Both parametric engines are moment-matched <b>in log space</b>. If <span class="tex" data-tex="G = \exp(X)">G = exp(X)</span> with <span class="tex" data-tex="X \sim N(m,\, s^2)">X ~ N(m, s²)</span>, matching both moments to targets <span class="tex" data-tex="\mu">μ</span> and <span class="tex" data-tex="\mathrm{sd}">sd</span> requires:</p>
+    <div class="tex-block" data-tex="s^2 = \log\!\left(1 + \frac{\mathrm{sd}^2}{(1+\mu)^2}\right) \qquad\qquad m = \log(1+\mu) - \frac{s^2}{2}">s² = log(1 + sd² / (1+μ)²)          m = log(1+μ) − s²/2</div>
+    <p>Without that adjustment a 6 % assumption silently simulates something else: the mean of a lognormal is not the exponential of its mean. This is also why the medians on this page fall <i>below</i> the stated assumption — the 60/40 has a 4.92 % arithmetic mean by construction but a 4.59 % median. Those 0.33 points are volatility drag, not an error.</p>
+    <p><b>The consequence that organises the whole page:</b> <code>bootstrap</code> and <code>hist-mvn</code> share <span class="tex" data-tex="\hat{\mu}">μ̂</span>, so they differ only in the tails. <code>fwd-mvn</code> changes <span class="tex" data-tex="\mu">μ</span>, and that dominates everything else.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <span class="eyebrow">What the methods say</span>
+    <h2>Change the optimiser, nothing moves. Change the return assumption, everything moves.</h2>
+    <p>Median annualised return for each weighting method, under each of the three engines. Read across a row: the three bars are the same portfolio, projected three ways. The gap between the bars in one row dwarfs the gap between rows.</p>
+  </div>
+  <div class="figure">
+    <div class="figure-head">
+      <h3>Median annualised nominal return by method and engine</h3>
+      <div class="legend" id="lg-engine"></div>
+    </div>
+    <div class="panels two" id="fig-methods"></div>
+    <p class="caption"><b>Why the forward bars are flat:</b> <code>fwd-mvn</code> assigns 6 % to every equity sleeve and 3.3 % to every bond sleeve, so at a fixed equity share every method has the same expected return <em>by construction</em> — only volatility differs, which moves the median by hundredths. The spread visible under <code>bootstrap</code> and <code>hist-mvn</code> is not the optimiser finding an edge; it is the 2014–2026 window, where World equity paid 12.6 %/yr and global bonds paid 0.5 %/yr. In that sample anything tilted toward equity looks brilliant.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <span class="eyebrow">How wide the outcomes are</span>
+    <h2>The uncertainty inside one method is far larger than the difference between methods.</h2>
+    <p>The 5th-to-95th percentile span of annualised return under the forward engine. The dot is the median; the bar is the range 90 % of paths landed inside.</p>
+  </div>
+  <div class="figure">
+    <div class="figure-head">
+      <h3>Annualised return, 5th–95th percentile · forward engine</h3>
+      <div class="legend" id="lg-port"></div>
+    </div>
+    <div class="plot" id="fig-range"></div>
+    <p class="caption">Each range is roughly 5 percentage points wide. The largest gap between any two constrained methods is under 0.1pp — about one fiftieth of the width of a single method's own uncertainty. Choosing between HRP, NCO and the hand-set weights is a rounding error against the risk actually being taken.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <span class="eyebrow">What the path looks like</span>
+    <h2>Percentile fans, for any method and engine.</h2>
+    <p>Portfolio value as a multiple of today's, <b>after</b> each withdrawal. Bands are the 5–95 and 25–75 percentile envelopes; the line is the median path; the two steps down are the withdrawals. Pick any of the five weighting methods and any of the three engines below — the default is the hand-set allocation under the forward engine.</p>
+  </div>
+  <div class="figure">
+    <div class="figure-head">
+      <h3>Projected value, multiple of starting capital</h3>
+      <div class="legend" id="lg-fan"></div>
+    </div>
+    <div class="controls">
+      <label>Weighting <select id="fan-method"></select></label>
+      <label>Engine <select id="fan-engine"></select></label>
+      <span class="hint" id="fan-hint"></span>
+    </div>
+    <div class="panels two" id="fig-fan"></div>
+    <p class="caption">Year-end values are reported <b>post-withdrawal</b> — what the account would actually show. The visible notches at years 10 and 20 are money leaving, not losses, which is why they are excluded from the drawdown figures: the running peak is scaled by the same 0.8 factor, so <span class="mono">maxdd</span> still measures market declines only. Note that the fan keeps widening after each withdrawal: taking a fixed <em>percentage</em> scales the whole distribution, so it cannot exhaust the portfolio the way a fixed euro amount can.</p>
+    <p class="caption" style="border-top:none;padding-top:0"><b>On the selectors.</b> All five weighting methods and all three engines are plotted, so the fan can be inspected for any combination. The y-axis is held fixed across the five <em>methods</em> within a given engine — that is the comparison worth making honest, since method differences are small. It rescales when you change <em>engine</em>, because the engines differ by so much that one shared axis would flatten the forward case into the bottom third of the plot. The two unconstrained methods are the instructive extreme: near-zero equity, so a very narrow fan and a much lower median.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <span class="eyebrow">The fund selection</span>
+    <h2>What is actually inside each portfolio.</h2>
+    <p>Six index funds, all accumulating and all <i>traspasable</i> under Spanish rules. ISINs and ongoing charges were verified against FT Markets tearsheets on 8 September 2026 — reconfirm them with the platform before trading, because they move.</p>
+  </div>
+  <div class="fundgrid" id="fund-cards"></div>
+  <div class="figure">
+    <div class="figure-head"><h3>Weights by method (%) — every method, both portfolios</h3></div>
+    <div class="tablewrap" id="weights-table" style="margin-top:0;border:none;box-shadow:none"></div>
+    <p class="caption">This is the table missing from earlier versions of this report: the weights each optimiser actually produces. Note how far HRP departs from the hand-set allocation inside equities — it pushes emerging markets far above its market-cap weight, because it sees only covariance — and how the two unconstrained methods empty equities almost entirely.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <span class="eyebrow">What the charges do</span>
+    <h2>Fees are the one dimension where the weighting method actually matters.</h2>
+    <p>Published fund NAVs are already <b>net of the fund's ongoing charge</b>, so <span class="tex" data-tex="\hat{\mu}">μ̂</span> and <span class="tex" data-tex="\hat{\Sigma}">Σ̂</span> — and therefore the <code>bootstrap</code> and <code>hist-mvn</code> engines — have charges embedded whether or not you think about them. <code>fwd-mvn</code> did not: 6 % and 3.3 % are gross index-level assumptions. It now subtracts each weight vector's own weighted ongoing charge.</p>
+  </div>
+  <div class="figure">
+    <div class="figure-head"><h3>Weighted ongoing charge by method, and its effect on the forward median</h3></div>
+    <div class="tablewrap" id="fee-table" style="margin-top:0;border:none;box-shadow:none"></div>
+    <p class="caption">The charge spread across methods runs <b>0.081 % to 0.132 %/yr</b> — a 0.051pp range, which is <em>wider than the entire 0.05pp spread in gross expected return between the constrained methods</em>. And unlike expected return, this difference is deterministic: it does not need 176 years of data to establish. HRP-in-sleeves is the most expensive of the three constrained methods because it loads emerging markets (0.16 %) and small caps (0.29 %) well above their hand-set weights; NCO-in-sleeves is the cheapest because it drops both small caps and the intermediate bond fund entirely. If you want a data-driven reason to prefer one optimiser here, cost is the only one that survives scrutiny — and it favours NCO by about 0.026pp/yr.</p>
+  </div>
+  <div class="prose" style="margin-top:26px">
+    <h3>What is still not costed</h3>
+    <p><b>Platform and custody charges are modelled as zero.</b> That is right for MyInvestor, which levies no custody fee on funds, but wrong for platforms that do. The effect is pure compounding drag on the terminal value:</p>
+  </div>
+  <div class="tablewrap" id="platform-table"></div>
+  <div class="prose" style="margin-top:22px">
+    <p><b>Rebalancing is assumed free.</b> <span class="mono">stats()</span> rebalances monthly at zero cost. In reality a Spanish <i>traspaso</i> is tax-free but not instantaneous — it takes several business days out of the market, and the NAV you leave is not the NAV you arrive at. Monthly rebalancing is also more frequent than anyone would actually do; annual would be more realistic and would cost less.</p>
+    <p><b>The historical series carry the wrong charges.</b> Three sleeves — World, EM and ShortBond — take their history from longer-lived proxy funds, not from the chosen S share classes. Those proxies generally charge more (the Vanguard Global Stock Index proxy runs about 0.18 % against the iShares S class's 0.06 %), so <span class="tex" data-tex="\hat{\mu}">μ̂</span> is net of a heavier fee than the actual portfolio would pay. The <code>bootstrap</code> and <code>hist-mvn</code> engines are therefore mildly conservative on this axis — which is the safe direction to be wrong in, but it is not zero.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <span class="eyebrow">Every number</span>
+    <h2>Full results.</h2>
+    <p>Money-weighted return (IRR) under each engine, plus what is taken out, what is left, and the probability of losing purchasing power across the whole plan. <span class="mono">received</span> is withdrawals plus final value — the total the investor actually ends up holding. Hand-set rows are tinted.</p>
+  </div>
+  <div class="tablewrap" id="fig-table"></div>
+</section>
+
+<section>
+  <div class="shead">
+    <span class="eyebrow">Column definitions</span>
+    <h2>What every column in every table means.</h2>
+    <p>Percentiles are taken across the 20,000 simulated paths, so "p5" is the value only 5 % of paths came in below — a bad case, not a worst case.</p>
+  </div>
+  <div class="prose">
+    <h3>Estimator-precision table</h3>
+    <div class="deflist">
+      <div><b>μ̂</b><span>Sample mean monthly return, annualised by ×12. The hat marks it as an <em>estimate</em> from 149 observations, not the true parameter.</span></div>
+      <div><b>SE(μ̂)</b><span>Standard error of that estimate: <span class="tex" data-tex="\sigma/\sqrt{T}">σ/√T</span> with <span class="tex" data-tex="T">T</span> in years. How much μ̂ would jump around if you drew another 12.4-year sample from the same process.</span></div>
+      <div><b>rel.</b><span>SE divided by the estimate itself — the coefficient of variation of the estimator. Above 100 % (flagged) the noise exceeds the signal, so even the sign is undetermined.</span></div>
+      <div><b>σ̂</b><span>Sample standard deviation of monthly returns, annualised by ×√12. This is what "volatility" means throughout.</span></div>
+      <div><b>SE(σ̂)</b><span>Standard error of the volatility estimate, <span class="tex" data-tex="\sigma/\sqrt{2(n-1)}">σ/√(2(n−1))</span> under the usual large-sample normal approximation, with <span class="tex" data-tex="n">n</span> in months.</span></div>
+      <div><b>95 % CI on μ</b><span><span class="tex" data-tex="\hat{\mu} \pm 1.96\,\mathrm{SE}(\hat{\mu})">μ̂ ± 1.96·SE(μ̂)</span>. Included to make the width visceral: for World it spans fifteen percentage points.</span></div>
+    </div>
+
+    <h3>Full-results table</h3>
+    <div class="deflist">
+      <div><b>Eq %</b><span>Share of the portfolio in the three equity sleeves (World, EM, SmallCap). The constrained methods are pinned to 60 % and 25 % by design; the unconstrained ones choose it themselves and land near zero.</span></div>
+      <div><b>Vol %</b><span>Annualised portfolio volatility, <span class="tex" data-tex="\sqrt{w^{\top}\Sigma w}">√(w^T Σ w)</span>. Computed from the covariance matrix, not from the simulation.</span></div>
+      <div><b>Charge %</b><span>Weighted ongoing charge of that weight vector: <span class="tex" data-tex="\textstyle\sum_i w_i \cdot \mathrm{TER}_i">Σ wᵢ·TERᵢ</span>. Deterministic, unlike everything else in the table.</span></div>
+      <div><b>fwd med / fwd p5</b><span>Median and 5th-percentile money-weighted return (IRR) under the <code>fwd-mvn</code> engine, net of charges. IRR rather than CAGR because money flows both in and out.</span></div>
+      <div><b>boot med / hist med</b><span>The same median under the <code>bootstrap</code> and <code>hist-mvn</code> engines. Both inherit the sample mean, so both describe 2014–2026 rather than the future.</span></div>
+      <div><b>taken out</b><span>Sum of the two 20 % withdrawals, as a multiple of starting capital. Path-dependent: 20 % of a bigger pot is more money.</span></div>
+      <div><b>end value</b><span>What is left at the horizon, after both withdrawals — a multiple of starting capital.</span></div>
+      <div><b>received</b><span>Withdrawals plus end value: everything the investor actually ends up holding. This is the figure to compare against what went in.</span></div>
+      <div><b>real recvd</b><span>The same total in today's money, with each withdrawal deflated at 2 %/yr from <em>the moment it was taken</em>, not from the horizon.</span></div>
+      <div><b>P(real loss)</b><span>Share of paths where real received is below what was put in — losing purchasing power across the whole plan, withdrawals included.</span></div>
+      <div><b>med. DD</b><span>Median across paths of each path's worst peak-to-trough decline. Withdrawals are excluded by scaling the running peak by the same factor, so this measures market declines only.</span></div>
+    </div>
+
+    <h3>Fund-selection table</h3>
+    <div class="deflist">
+      <div><b>Weight</b><span>Share of the portfolio in that fund, under the hand-set allocation.</span></div>
+      <div><b>Of €20,000 / Of €600/mo</b><span>That weight applied to the initial lump and to each monthly contribution. Withdrawals come out pro-rata, so the mix never drifts.</span></div>
+      <div><b>Charge</b><span>The fund's own ongoing charge (OCF/TER), verified from its FT tearsheet. Already deducted from published NAVs.</span></div>
+      <div><b>ISIN</b><span>The twelve-character identifier for that exact share class. Share classes of the same fund differ in charge by several multiples, so the ISIN — not the name — is what pins it down.</span></div>
+    </div>
+
+    <h3>Charge tables</h3>
+    <div class="deflist">
+      <div><b>Charge %/yr · vs hand-set</b><span>The weight vector's weighted charge, and its difference from the hand-set allocation in percentage points per year.</span></div>
+      <div><b>fwd median, net</b><span>The forward-engine median IRR after that charge is deducted — the number the charge column actually moves.</span></div>
+      <div><b>cost over Ny</b><span>Cumulative drag on terminal value, <span class="tex" data-tex="1-(1-c)^{N}">1−(1−charge)^N</span>. A 0.109 %/yr charge over 32 years costs 3.43 % of the final pot.</span></div>
+      <div><b>Added platform fee</b><span>Hypothetical custody charge on top of the fund charges, currently modelled as zero. Shown to size what a platform that does charge would cost.</span></div>
+    </div>
+
+    <h3>Weights-by-method table</h3>
+    <div class="deflist">
+      <div><b>Rows</b><span>The six funds. <b>Total equity</b> sums the three equity sleeves — a check that the constrained methods hit their target share.</span></div>
+      <div><b>Columns</b><span>One per weighting method. Dimmed <span class="mono">0.0</span> means the optimiser excluded that fund outright, which NCO does often: it is a minimum-variance solution and corner solutions are normal for it.</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <span class="eyebrow">What would change these numbers</span>
+    <h2>Four honest limits.</h2>
+  </div>
+  <div class="notes col">
+    <div class="note">
+      <h3>2008 is not in the sample</h3>
+      <p>The common window starts 2014-04, because the short-bond proxy does. Every covariance, correlation and drawdown here is fitted to a period with no global financial crisis. The simulated median drawdown of about 22 % for the 60/40 is therefore the optimistic case.</p>
+    </div>
+    <div class="note">
+      <h3>The bootstrap inherits a strange decade</h3>
+      <p>2014–2026 combined an exceptional equity run with the worst bond years in decades. The <code>bootstrap</code> engine faithfully resamples that, which is why it rates bond-heavy methods so poorly. It is the most assumption-free engine and the least representative sample — those are the same fact.</p>
+    </div>
+    <div class="note">
+      <h3>The forward engine cannot rank sleeves</h3>
+      <p>Assigning one number to all equity and one to all bonds makes EM, small caps and developed world indistinguishable to it. If you want the projection to express a view on the EM or small-cap premium, that view has to be typed in as a per-sleeve expected return — at which point the forecast, not the optimiser, is doing the work.</p>
+    </div>
+    <div class="note">
+      <h3>The withdrawal schedule is stylised</h3>
+      <p>20 % at years 10 and 20 is a round assumption, not a spending plan. Two things follow from its shape. Taking a <em>percentage</em> is self-limiting — the pot scales down but never empties — whereas a fixed euro withdrawal can exhaust it, and is far more exposed to a bad sequence of early returns. And two lumps a decade apart is not how retirement spending actually behaves; a monthly stream would sample market conditions far more often and would carry meaningfully more sequence risk. These numbers are therefore the gentler case.</p>
+    </div>
+    <div class="note">
+      <h3>Carmignac is fetched but excluded</h3>
+      <p>Its NAV history is now in the CSV (93 months, from 2018-12), but it is not in either sleeve. Its realised 8.0 % volatility and −13.8 % worst month put it closer to equity than to ballast, and including it would truncate the common window from 149 months to 93.</p>
+    </div>
+  </div>
+</section>
+
+<footer id="foot"></footer>
+</div>
+
+<div id="tip" role="status" aria-live="polite"></div>
+<script type="application/json" id="data">__DATA__</script>
