@@ -155,6 +155,13 @@
     <span class="eyebrow">The fund selection</span>
     <h2>What is actually inside each portfolio.</h2>
     <p>Six index funds, all accumulating and all <i>traspasable</i> under Spanish rules. ISINs and ongoing charges were verified against FT Markets tearsheets on 8 September 2026 — reconfirm them with the platform before trading, because they move.</p>
+    <p><b>Read the next table before the weights.</b> Three of these share classes launched in 2025 and have about thirteen months of history — nowhere near enough to estimate a covariance matrix. Their history is taken from a longer-lived proxy, so what is modelled is the <em>index exposure</em>, presented with the investable share class's ISIN and fee.</p>
+  </div>
+  <div class="figure">
+    <div class="figure-head"><h3>Where each sleeve's history actually comes from</h3></div>
+    <div class="tablewrap" id="hist-table" style="margin-top:0;border:none;box-shadow:none"></div>
+    <p class="caption"><b>Why these proxies and not another share class of the same fund.</b> Every alternative class of the chosen funds is worse: iShares Developed World Institutional Dist EUR has 192 months from 2010-09 but <em>distributes</em>, so its NAV series omits reinvested income and understates total return; the EM D Acc EUR class has only 112 months; the Global Aggregate 1-5 Year D Dist EUR Hedged class only 104, and also distributes. The Vanguard proxies are longer and accumulating. Using the chosen classes directly would collapse the common window from 149 months to 13 and make every number on this page impossible to compute.</p>
+    <p class="caption" style="border-top:none;padding-top:0"><b>How much it matters, measured.</b> Substituting a wholly independent MSCI World tracker (the iShares Core MSCI World ETF) for the Vanguard proxy over identical dates moves the 60/40 portfolio's volatility by <span id="ps-vol"></span> percentage points — <span id="ps-rel"></span> % in relative terms — and correlation with the intermediate bond fund by <span id="ps-corr"></span>. So the proxy choice is a real but bounded effect on <span class="tex" data-tex="\hat{\Sigma}">Σ̂</span>, and smaller than the 6–12 % out-of-sample calibration miss measured further down. It does <b>not</b> touch the forward engine's means, which are external assumptions rather than estimates, so the headline medians are unaffected. It does mean tracking error, securities-lending revenue and the real funds' own behaviour are unmeasured here.</p>
   </div>
   <div class="fundgrid" id="fund-cards"></div>
   <div class="figure">

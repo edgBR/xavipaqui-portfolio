@@ -80,6 +80,25 @@ legend('lg-fan',[{n:'5\u201395 pct',c:cv('--fan-1')},{n:'25\u201375 pct',c:cv('-
   document.getElementById('estim-table').innerHTML=h+'</tbody></table>';
 })();
 
+/* history provenance: which series each sleeve was actually estimated from */
+(function(){
+  const H=FD.history, PS=FD.proxy_sensitivity;
+  let h='<table style="min-width:820px"><thead><tr><th>Sleeve</th><th>You would buy</th>'
+    +'<th>History estimated from</th><th>Months</th><th>From</th><th>Same fund?</th></tr></thead><tbody>';
+  FD.order.forEach(function(k){
+    const v=H[k], f=FD.funds[k];
+    h+='<tr class="'+(v.proxy?'':'hand')+'"><td>'+f.en+'</td>'
+      +'<td style="font-size:.78rem">'+f.isin+'</td>'
+      +'<td style="font-size:.78rem">'+v.isin+(v.name?' <span style="opacity:.7">'+v.name+'</span>':'')+'</td>'
+      +'<td>'+v.months+'</td><td>'+v.start+'</td>'
+      +'<td class="'+(v.proxy?'neg':'')+'">'+(v.proxy?'no \u2014 proxy':'yes')+'</td></tr>';
+  });
+  document.getElementById('hist-table').innerHTML=h+'</tbody></table>';
+  document.getElementById('ps-vol').textContent=num(PS.port_vol_delta_pp,2);
+  document.getElementById('ps-rel').textContent=num(Math.abs(PS.port_vol_delta_rel_pct),1);
+  document.getElementById('ps-corr').textContent=num(PS.corr_world_bond_delta,3);
+})();
+
 /* fund cards */
 (function(){
   const cards=PORTS.map(p=>{

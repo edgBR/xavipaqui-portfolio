@@ -131,6 +131,69 @@
    "ter_cost_year1_eur": 21.62
   }
  },
+ "history": {
+  "World": {
+   "isin": "IE00B03HCZ61",
+   "proxy": true,
+   "name": "Vanguard Global Stock Index Fund Investor EUR Acc",
+   "note": "same index (MSCI World), accumulating, different manager",
+   "months": 260,
+   "start": "2005-01",
+   "end": "2026-08"
+  },
+  "EM": {
+   "isin": "IE0031786142",
+   "proxy": true,
+   "name": "Vanguard Emerging Markets Stock Index Fund Investor EUR Acc",
+   "note": "same index family, accumulating, different manager",
+   "months": 243,
+   "start": "2006-06",
+   "end": "2026-08"
+  },
+  "SmallCap": {
+   "isin": "IE00B42W3S00",
+   "proxy": false,
+   "name": null,
+   "note": "the fund itself",
+   "months": 151,
+   "start": "2014-02",
+   "end": "2026-08"
+  },
+  "GlobalBond": {
+   "isin": "IE00B18GC888",
+   "proxy": false,
+   "name": null,
+   "note": "the fund itself",
+   "months": 151,
+   "start": "2014-02",
+   "end": "2026-08"
+  },
+  "ShortBond": {
+   "isin": "IE00BH65QK91",
+   "proxy": true,
+   "name": "Vanguard Global Short-Term Bond Index Fund Investor EUR Hedged Acc",
+   "note": "comparable short-duration hedged mandate, different manager",
+   "months": 150,
+   "start": "2014-03",
+   "end": "2026-08"
+  },
+  "InflLinked": {
+   "isin": "IE00B04GQR24",
+   "proxy": false,
+   "name": null,
+   "note": "the fund itself",
+   "months": 256,
+   "start": "2005-05",
+   "end": "2026-08"
+  }
+ },
+ "proxy_sensitivity": {
+  "port_vol_delta_pp": -0.19,
+  "port_vol_delta_rel_pct": -2.2,
+  "world_vol_delta_pp": -0.25,
+  "corr_world_bond_delta": -0.053,
+  "alt_series": "IWDA.AS (iShares Core MSCI World UCITS ETF, EUR)"
+ },
  "method_weights": {
   "58yo 60/40": {
    "Hand-set": {

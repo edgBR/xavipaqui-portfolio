@@ -175,6 +175,22 @@ personBlock(KEYS[0],'p-58');personBlock(KEYS[1],'p-64');
   document.getElementById('ter-drag').textContent=num(drag,1)+' %';
 })();
 
+/* the three young share classes: say so in plain language */
+(function(){
+  const H=FD.history;
+  const young=FD.order.filter(function(k){return H[k].proxy;}).map(function(k){return FD.funds[k].corto;});
+  document.getElementById('prov').innerHTML=
+    '<b>Una cosa importante sobre las cifras.</b> Tres de estos seis fondos son muy nuevos: '
+    +'se lanzaron en 2025 y solo llevan unos trece meses funcionando ('+young.join(', ')+'). '
+    +'Trece meses no bastan para saber cómo se comporta nada. Así que para esos tres hemos usado '
+    +'el historial de <b>otro fondo casi idéntico</b>, del mismo mercado y mucho más antiguo, y '
+    +'hemos supuesto que el nuevo se comportará igual.<br><br>'
+    +'Es lo razonable \u2014 son fondos indexados, y su trabajo es copiar el mismo \u00edndice \u2014 '
+    +'pero conviene saberlo: lo que se ha medido es <b>el mercado en el que invierten</b>, no el fondo '
+    +'concreto. Comprobamos cu\u00e1nto cambia el resultado usando un tercer fondo distinto del mismo '
+    +'mercado: el vaiv\u00e9n se movi\u00f3 alrededor de un <b>2 %</b>. Poco, pero no cero.';
+})();
+
 (function(){
   const cards=KEYS.map(k=>{
     const P=D.people[k],c=P.cautious;
