@@ -1,0 +1,411 @@
+{
+ "spectrum": {
+  "n_assets": 6,
+  "n_obs": 149,
+  "t_over_n": 24.8,
+  "mp_edge": 1.442,
+  "eigenvalues": [
+   3.599,
+   1.432,
+   0.478,
+   0.341,
+   0.082,
+   0.069
+  ],
+  "n_noise": 5,
+  "noise_share_of_variance_pct": 40.0,
+  "closest_to_edge_gap_pct": 0.67
+ },
+ "spectrum_window": {
+  "n_assets": 6,
+  "n_obs": 60,
+  "t_over_n": 10.0,
+  "mp_edge": 1.732,
+  "eigenvalues": [
+   2.928,
+   2.059,
+   0.479,
+   0.399,
+   0.078,
+   0.058
+  ],
+  "n_noise": 4,
+  "noise_share_of_variance_pct": 16.9,
+  "closest_to_edge_gap_pct": 18.83
+ },
+ "weights": {
+  "HRP unconstrained": {
+   "raw": {
+    "World": 0.88,
+    "EM": 1.35,
+    "SmallCap": 0.6,
+    "GlobalBond": 13.45,
+    "ShortBond": 72.82,
+    "InflLinked": 10.9
+   },
+   "denoised": {
+    "World": 1.11,
+    "EM": 0.93,
+    "SmallCap": 1.08,
+    "GlobalBond": 11.67,
+    "ShortBond": 79.73,
+    "InflLinked": 5.48
+   },
+   "delta": {
+    "World": 0.24,
+    "EM": -0.42,
+    "SmallCap": 0.48,
+    "GlobalBond": -1.78,
+    "ShortBond": 6.9,
+    "InflLinked": -5.42
+   },
+   "max_abs_delta": 6.9
+  },
+  "NCO min-var unconstrained": {
+   "raw": {
+    "World": 0.03,
+    "EM": 0.01,
+    "SmallCap": 0.0,
+    "GlobalBond": 0.0,
+    "ShortBond": 97.04,
+    "InflLinked": 2.92
+   },
+   "denoised": {
+    "World": 0.0,
+    "EM": 0.0,
+    "SmallCap": 0.0,
+    "GlobalBond": 6.71,
+    "ShortBond": 91.03,
+    "InflLinked": 2.26
+   },
+   "delta": {
+    "World": -0.03,
+    "EM": -0.01,
+    "SmallCap": 0.0,
+    "GlobalBond": 6.71,
+    "ShortBond": -6.01,
+    "InflLinked": -0.66
+   },
+   "max_abs_delta": 6.71
+  },
+  "HRP-in-sleeves (58yo 60/40)": {
+   "raw": {
+    "World": 18.61,
+    "EM": 28.62,
+    "SmallCap": 12.77,
+    "GlobalBond": 5.54,
+    "ShortBond": 29.98,
+    "InflLinked": 4.49
+   },
+   "denoised": {
+    "World": 20.49,
+    "EM": 25.45,
+    "SmallCap": 14.06,
+    "GlobalBond": 4.17,
+    "ShortBond": 33.8,
+    "InflLinked": 2.03
+   },
+   "delta": {
+    "World": 1.88,
+    "EM": -3.17,
+    "SmallCap": 1.29,
+    "GlobalBond": -1.36,
+    "ShortBond": 3.82,
+    "InflLinked": -2.46
+   },
+   "max_abs_delta": 3.82
+  },
+  "NCO-in-sleeves (58yo 60/40)": {
+   "raw": {
+    "World": 44.89,
+    "EM": 15.11,
+    "SmallCap": 0.0,
+    "GlobalBond": 0.0,
+    "ShortBond": 39.34,
+    "InflLinked": 0.66
+   },
+   "denoised": {
+    "World": 28.83,
+    "EM": 18.87,
+    "SmallCap": 12.3,
+    "GlobalBond": 0.0,
+    "ShortBond": 40.0,
+    "InflLinked": 0.0
+   },
+   "delta": {
+    "World": -16.06,
+    "EM": 3.76,
+    "SmallCap": 12.3,
+    "GlobalBond": 0.0,
+    "ShortBond": 0.66,
+    "InflLinked": -0.66
+   },
+   "max_abs_delta": 16.06
+  },
+  "HRP-in-sleeves (64yo 25/75)": {
+   "raw": {
+    "World": 7.75,
+    "EM": 11.93,
+    "SmallCap": 5.32,
+    "GlobalBond": 10.38,
+    "ShortBond": 56.21,
+    "InflLinked": 8.41
+   },
+   "denoised": {
+    "World": 8.54,
+    "EM": 10.6,
+    "SmallCap": 5.86,
+    "GlobalBond": 7.83,
+    "ShortBond": 63.37,
+    "InflLinked": 3.81
+   },
+   "delta": {
+    "World": 0.78,
+    "EM": -1.32,
+    "SmallCap": 0.54,
+    "GlobalBond": -2.55,
+    "ShortBond": 7.16,
+    "InflLinked": -4.6
+   },
+   "max_abs_delta": 7.16
+  },
+  "NCO-in-sleeves (64yo 25/75)": {
+   "raw": {
+    "World": 18.7,
+    "EM": 6.3,
+    "SmallCap": 0.0,
+    "GlobalBond": 0.0,
+    "ShortBond": 73.76,
+    "InflLinked": 1.24
+   },
+   "denoised": {
+    "World": 12.01,
+    "EM": 7.86,
+    "SmallCap": 5.13,
+    "GlobalBond": 0.0,
+    "ShortBond": 75.0,
+    "InflLinked": 0.0
+   },
+   "delta": {
+    "World": -6.69,
+    "EM": 1.57,
+    "SmallCap": 5.13,
+    "GlobalBond": 0.0,
+    "ShortBond": 1.24,
+    "InflLinked": -1.24
+   },
+   "max_abs_delta": 6.69
+  }
+ },
+ "order": [
+  "World",
+  "EM",
+  "SmallCap",
+  "GlobalBond",
+  "ShortBond",
+  "InflLinked"
+ ],
+ "walk_forward": {
+  "config": {
+   "window_months": 60,
+   "hold_months": 12,
+   "assets": [
+    "World",
+    "EM",
+    "SmallCap",
+    "GlobalBond",
+    "ShortBond",
+    "InflLinked"
+   ],
+   "sample_months": 149
+  },
+  "runs": {
+   "raw": {
+    "methods": {
+     "HRP": {
+      "oos_vol_pct": 2.87,
+      "cagr_pct": 0.67,
+      "sharpe": 0.233,
+      "maxdd_pct": -9.89,
+      "pred_vol_pct": 2.39,
+      "pred_over_realised": 0.832,
+      "turnover_pct_per_rebal": 3.1
+     },
+     "NCO min-var": {
+      "oos_vol_pct": 2.3,
+      "cagr_pct": 0.45,
+      "sharpe": 0.196,
+      "maxdd_pct": -8.98,
+      "pred_vol_pct": 1.79,
+      "pred_over_realised": 0.777,
+      "turnover_pct_per_rebal": 1.8
+     },
+     "IVP": {
+      "oos_vol_pct": 2.81,
+      "cagr_pct": 0.69,
+      "sharpe": 0.246,
+      "maxdd_pct": -9.81,
+      "pred_vol_pct": 2.32,
+      "pred_over_realised": 0.825,
+      "turnover_pct_per_rebal": 2.6
+     },
+     "MinVar (CLA)": {
+      "oos_vol_pct": 1.48,
+      "cagr_pct": 1.12,
+      "sharpe": 0.761,
+      "maxdd_pct": -5.06,
+      "pred_vol_pct": 0.94,
+      "pred_over_realised": 0.639,
+      "turnover_pct_per_rebal": 9.2
+     },
+     "Equal weight": {
+      "oos_vol_pct": 8.66,
+      "cagr_pct": 5.85,
+      "sharpe": 0.676,
+      "maxdd_pct": -12.84,
+      "pred_vol_pct": 8.01,
+      "pred_over_realised": 0.924,
+      "turnover_pct_per_rebal": 0.0
+     },
+     "Hand 60/40": {
+      "oos_vol_pct": 9.49,
+      "cagr_pct": 7.6,
+      "sharpe": 0.801,
+      "maxdd_pct": -13.43,
+      "pred_vol_pct": 8.96,
+      "pred_over_realised": 0.945,
+      "turnover_pct_per_rebal": 0.0
+     },
+     "Hand 25/75": {
+      "oos_vol_pct": 5.74,
+      "cagr_pct": 3.54,
+      "sharpe": 0.617,
+      "maxdd_pct": -11.65,
+      "pred_vol_pct": 5.14,
+      "pred_over_realised": 0.896,
+      "turnover_pct_per_rebal": 0.0
+     }
+    },
+    "tests_vs_HRP": {
+     "MinVar (CLA)": {
+      "t": 4.59,
+      "p": 0.0,
+      "vol_ratio": 1.943
+     },
+     "IVP": {
+      "t": 2.76,
+      "p": 0.007,
+      "vol_ratio": 1.02
+     },
+     "Equal weight": {
+      "t": -4.56,
+      "p": 0.0,
+      "vol_ratio": 0.331
+     },
+     "NCO min-var": {
+      "t": 4.88,
+      "p": 0.0,
+      "vol_ratio": 1.247
+     }
+    },
+    "n_oos_months": 89,
+    "refits": 8,
+    "first_oos": "2019-04",
+    "last_oos": "2026-04"
+   },
+   "denoised": {
+    "methods": {
+     "HRP": {
+      "oos_vol_pct": 2.83,
+      "cagr_pct": 0.72,
+      "sharpe": 0.254,
+      "maxdd_pct": -9.88,
+      "pred_vol_pct": 2.24,
+      "pred_over_realised": 0.793,
+      "turnover_pct_per_rebal": 3.7
+     },
+     "NCO min-var": {
+      "oos_vol_pct": 2.29,
+      "cagr_pct": 0.4,
+      "sharpe": 0.173,
+      "maxdd_pct": -8.77,
+      "pred_vol_pct": 1.77,
+      "pred_over_realised": 0.772,
+      "turnover_pct_per_rebal": 1.8
+     },
+     "IVP": {
+      "oos_vol_pct": 2.81,
+      "cagr_pct": 0.69,
+      "sharpe": 0.246,
+      "maxdd_pct": -9.81,
+      "pred_vol_pct": 2.28,
+      "pred_over_realised": 0.809,
+      "turnover_pct_per_rebal": 2.6
+     },
+     "MinVar (CLA)": {
+      "oos_vol_pct": 2.09,
+      "cagr_pct": -0.41,
+      "sharpe": -0.198,
+      "maxdd_pct": -7.38,
+      "pred_vol_pct": 1.4,
+      "pred_over_realised": 0.668,
+      "turnover_pct_per_rebal": 7.8
+     },
+     "Equal weight": {
+      "oos_vol_pct": 8.66,
+      "cagr_pct": 5.85,
+      "sharpe": 0.676,
+      "maxdd_pct": -12.84,
+      "pred_vol_pct": 7.88,
+      "pred_over_realised": 0.91,
+      "turnover_pct_per_rebal": 0.0
+     },
+     "Hand 60/40": {
+      "oos_vol_pct": 9.49,
+      "cagr_pct": 7.6,
+      "sharpe": 0.801,
+      "maxdd_pct": -13.43,
+      "pred_vol_pct": 8.82,
+      "pred_over_realised": 0.93,
+      "turnover_pct_per_rebal": 0.0
+     },
+     "Hand 25/75": {
+      "oos_vol_pct": 5.74,
+      "cagr_pct": 3.54,
+      "sharpe": 0.617,
+      "maxdd_pct": -11.65,
+      "pred_vol_pct": 5.14,
+      "pred_over_realised": 0.895,
+      "turnover_pct_per_rebal": 0.0
+     }
+    },
+    "tests_vs_HRP": {
+     "MinVar (CLA)": {
+      "t": 3.06,
+      "p": 0.003,
+      "vol_ratio": 1.352
+     },
+     "IVP": {
+      "t": 0.61,
+      "p": 0.5426,
+      "vol_ratio": 1.005
+     },
+     "Equal weight": {
+      "t": -4.58,
+      "p": 0.0,
+      "vol_ratio": 0.326
+     },
+     "NCO min-var": {
+      "t": 4.46,
+      "p": 0.0,
+      "vol_ratio": 1.233
+     }
+    },
+    "n_oos_months": 89,
+    "refits": 8,
+    "first_oos": "2019-04",
+    "last_oos": "2026-04"
+   }
+  }
+ }
+}

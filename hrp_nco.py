@@ -34,6 +34,74 @@ for _k, _w in HAND.items():  # weights must sum to 1 and match the stated equity
     assert abs(sum(_w[a] for a in EQUITY) - EQ_SHARE[_k.split(" (")[0]]) < 1e-9, f"{_k} equity share"
 
 
+# ------------------------------------------------------------------ denoising (López de Prado 2019/2020)
+def mp_edge(n_assets: int, n_obs: int, sigma2: float = 1.0) -> float:
+    """Upper edge of the Marchenko-Pastur bulk: eigenvalues below this are consistent
+    with pure noise. q = T/N; sigma2 = 1 for a correlation matrix.
+
+    NOTE ON VALIDITY: MP is an asymptotic result (N, T -> inf at fixed q). LdP fits
+    sigma2 by matching a KDE of the empirical spectrum to the MP density, which needs a
+    well-populated bulk. With N = 6 there is no bulk to fit, so we use the analytic
+    sigma2 = 1 edge and treat the outcome as indicative, not authoritative.
+    """
+    q = n_obs / n_assets
+    return sigma2 * (1.0 + np.sqrt(1.0 / q)) ** 2
+
+
+def denoise_corr(corr: np.ndarray, n_obs: int, detone: int = 0) -> np.ndarray:
+    """Constant-residual-eigenvalue denoising. Keep the eigenvalues above the MP edge;
+    replace the rest by their mean so the trace is preserved; rebuild and renormalise.
+
+    detone > 0 additionally zeroes that many leading eigenvalues (the market
+    component), which LdP suggests so clustering is not dominated by it. At N = 6 the
+    first eigenvector carries ~60 % of the variance, so detoning is drastic here --
+    hence the default of 0.
+    """
+    n = corr.shape[0]
+    w, v = np.linalg.eigh(corr)
+    order = np.argsort(w)[::-1]
+    w, v = w[order], v[:, order]
+    k = int((w >= mp_edge(n, n_obs)).sum())
+    k = max(k, 1)                      # never shrink the whole spectrum away
+    w2 = w.copy()
+    if k < n:
+        w2[k:] = w2[k:].mean()
+    if detone:
+        w2[:detone] = 0.0
+    c2 = v @ np.diag(w2) @ v.T
+    d = np.sqrt(np.clip(np.diag(c2), 1e-12, None))
+    out = c2 / np.outer(d, d)
+    np.fill_diagonal(out, 1.0)
+    return out
+
+
+def denoise_cov(cov: pd.DataFrame, n_obs: int, detone: int = 0) -> pd.DataFrame:
+    """Denoise a covariance matrix by denoising its correlation and re-applying the
+    original standard deviations (which are estimated far more precisely than the
+    correlation structure, so they are left alone)."""
+    sd = np.sqrt(np.diag(cov.values))
+    corr = cov.values / np.outer(sd, sd)
+    dn = denoise_corr(corr, n_obs, detone)
+    return pd.DataFrame(np.outer(sd, sd) * dn, index=cov.index, columns=cov.columns)
+
+
+def spectrum_report(cov: pd.DataFrame, n_obs: int) -> dict:
+    """Diagnostics for the report: where the MP edge falls and how much of the
+    spectrum it classifies as noise."""
+    n = cov.shape[0]
+    sd = np.sqrt(np.diag(cov.values))
+    corr = cov.values / np.outer(sd, sd)
+    ev = np.sort(np.linalg.eigvalsh(corr))[::-1]
+    edge = mp_edge(n, n_obs)
+    below = ev < edge
+    return {"n_assets": n, "n_obs": n_obs, "t_over_n": round(n_obs / n, 1),
+            "mp_edge": round(float(edge), 3),
+            "eigenvalues": [round(float(x), 3) for x in ev],
+            "n_noise": int(below.sum()),
+            "noise_share_of_variance_pct": round(float(ev[below].sum() / n) * 100, 1),
+            "closest_to_edge_gap_pct": round(float(min(abs(ev - edge)) / edge) * 100, 2)}
+
+
 # ------------------------------------------------------------------ HRP (López de Prado 2016)
 def corr_dist(corr):
     return np.sqrt(np.clip(0.5 * (1 - corr), 0, None))

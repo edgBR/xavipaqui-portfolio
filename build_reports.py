@@ -32,7 +32,8 @@ def slim_mc(path="mc_results.json"):
 
 def build_technical():
     payload = {"mc": slim_mc(), "funds": json.load(open("funds_meta.json")),
-               "estim": json.load(open("estim.json"))}
+               "estim": json.load(open("estim.json")),
+               "rob": json.load(open("robustness.json"))}
     head = open("reports/tech_head.html").read()
     body = open("reports/tech_body.html").read()
     js = open("reports/tech_js.html").read()
@@ -69,8 +70,22 @@ def slim_dca(path="mc_dca_results.json"):
     return out
 
 
+def calibration(path="walk_forward.json"):
+    """How the two hand-set portfolios' predicted volatility compared with what
+    actually happened out of sample. The plain-language report presents drawdown
+    figures derived from in-sample covariance, so it has to say they came in mild."""
+    m = json.load(open(path))["runs"]["raw"]["methods"]
+    out = {}
+    for key, who in (("Hand 60/40", "58yo 60/40"), ("Hand 25/75", "64yo 25/75")):
+        v = m[key]
+        out[who] = {"pred_vol_pct": v["pred_vol_pct"], "oos_vol_pct": v["oos_vol_pct"],
+                    "understated_pct": round((v["oos_vol_pct"] / v["pred_vol_pct"] - 1) * 100, 1)}
+    return out
+
+
 def build_plain():
-    payload = {"dca": slim_dca(), "funds": json.load(open("funds_meta.json"))}
+    payload = {"dca": slim_dca(), "funds": json.load(open("funds_meta.json")),
+               "calib": calibration()}
     body = open("reports/plain_body.html").read()
     assert body.count("__DATA__") == 1
     html = (open("reports/plain_head.html").read()

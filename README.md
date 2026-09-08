@@ -11,6 +11,56 @@ several allocation methods. The reports make the central limitation explicit:
 simulated outcomes are substantially more sensitive to the return assumption than
 to the choice among the weighting methods.
 
+## Reports
+
+The two reports are the output of this repository. Both are published as private
+Artifacts on claude.ai — visible to the account that owns them, and shareable from
+the page's own share menu.
+
+| Report | Audience | Link |
+| --- | --- | --- |
+| **Two Retirements, Five Methods** (English) | Technical. Assumes statistics and mathematics, assumes no finance. | <https://claude.ai/code/artifact/a920fcdf-eacc-4c27-a4f6-e1b5d8aa03d4> |
+| **Seiscientos al Mes** (Spanish) | Plain language, no jargon, every term defined. Written for the person whose money it is. | <https://claude.ai/code/artifact/a67529b2-69c1-4c89-acaf-df4efa6cc6ba> |
+
+The same files are generated locally and committed, so they can be opened in a
+browser without network access:
+
+```
+reports/portfolio_mc.html     # English technical report
+reports/savings_plan.html     # Spanish savings-plan report
+```
+
+### What each report contains
+
+**Two Retirements, Five Methods** — the full analysis. A vocabulary section deriving
+the portfolio problem from `w`, `μ` and `Σ` and explaining what an optimiser and a
+return engine each are; the estimator-precision argument for why HRP and NCO discard
+expected returns; median return by method and engine; percentile fans selectable
+across all five methods and three engines; the six-fund selection with verified ISINs
+and charges; the effect of fees; Marchenko–Pastur denoising with its validity caveat
+at six assets; a walk-forward out-of-sample test; definitions for every table column;
+and four stated limitations. Equations are typeset with KaTeX.
+
+**Seiscientos al Mes** — the same plan for a non-specialist. What goes in, what comes
+out, what each of the six funds actually owns and how much of the €600 it receives,
+how far the balance can fall, and a scenario toggle contrasting the cautious return
+assumption against replaying 2014–2026. It states plainly that fees are already
+deducted, that the falls shown are probably mild, and that it is not advice.
+
+### Three findings worth knowing before reading either
+
+- **The return assumption dominates the optimiser.** Holding weights fixed and
+  changing only the return engine moves the median result about 36× more than
+  changing the weighting method does. Any ranking of the methods read off these
+  projections is the assumption talking.
+- **Fees are the one axis where the method choice reliably matters.** The weighted
+  ongoing charge ranges 0.081–0.132 %/yr across the methods — a wider spread than
+  their entire difference in gross expected return, and deterministic rather than
+  estimated.
+- **Every method understated its own risk out of sample**, by 6 % for the 60/40 mix
+  and 12 % for the 25/75. Volatility and drawdown figures in both reports should be
+  read as optimistic.
+
 ## What is in the repository
 
 | Path | Purpose |
@@ -21,6 +71,8 @@ to the choice among the weighting methods.
 | `monte_carlo.py` | Runs the lump-sum projections: stationary block bootstrap, historical Gaussian, and forward Gaussian return engines. |
 | `monte_carlo_dca.py` | Runs the EUR 20,000 initial investment plus EUR 600/month savings-plan projections. |
 | `build_funds_meta.py` / `build_estim.py` | Produce the fund/allocation metadata and return-estimation precision data used in the reports. |
+| `walk_forward.py` | Rolling out-of-sample test: estimates the covariance on a 60-month window, holds each method's weights 12 months, and compares realised against predicted volatility. This is the test López de Prado's papers actually run. |
+| `build_robustness.py` | Assembles the denoising diagnostics, raw-vs-denoised weights, and walk-forward results into the payload the technical report reads. |
 | `build_reports.py` | Builds the English technical report and Spanish savings-plan report from templates and generated JSON. |
 | `reports/` | HTML templates, KaTeX assets, and the generated reports. |
 | `uv.lock` | Exact, locked dependency resolution for reproducible environments. |
@@ -33,6 +85,8 @@ The primary generated artifacts are:
 | `mc_results.json`, `mc_summary.csv` | `monte_carlo.py` |
 | `mc_dca_results.json`, `mc_dca_summary.csv` | `monte_carlo_dca.py` |
 | `funds_meta.json`, `estim.json` | `build_funds_meta.py`, `build_estim.py` |
+| `walk_forward.json`, `walk_forward.csv` | `walk_forward.py` |
+| `robustness.json` | `build_robustness.py` |
 | `reports/portfolio_mc.html`, `reports/savings_plan.html` | `build_reports.py` |
 
 ## Prerequisites
@@ -101,8 +155,14 @@ uv run --locked python monte_carlo.py
 uv run --locked python monte_carlo_dca.py
 uv run --locked python build_funds_meta.py
 uv run --locked python build_estim.py
+uv run --locked python walk_forward.py
+uv run --locked python build_robustness.py
 uv run --locked python build_reports.py
 ```
+
+The order matters at the end: `build_reports.py` reads `robustness.json` and
+`walk_forward.json`, so `walk_forward.py` and `build_robustness.py` have to run
+before it. `build_robustness.py` in turn reads `walk_forward.json`.
 
 `fetch_navs.py` calls external data providers and may take a while. Its historical
 proxies are deliberate: when the selected fund lacks a long enough history, the

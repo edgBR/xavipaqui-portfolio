@@ -1,0 +1,237 @@
+{
+ "config": {
+  "window_months": 60,
+  "hold_months": 12,
+  "assets": [
+   "World",
+   "EM",
+   "SmallCap",
+   "GlobalBond",
+   "ShortBond",
+   "InflLinked"
+  ],
+  "sample_months": 149
+ },
+ "spectrum_full_sample": {
+  "n_assets": 6,
+  "n_obs": 149,
+  "t_over_n": 24.8,
+  "mp_edge": 1.442,
+  "eigenvalues": [
+   3.599,
+   1.432,
+   0.478,
+   0.341,
+   0.082,
+   0.069
+  ],
+  "n_noise": 5,
+  "noise_share_of_variance_pct": 40.0,
+  "closest_to_edge_gap_pct": 0.67
+ },
+ "spectrum_window": {
+  "n_assets": 6,
+  "n_obs": 60,
+  "t_over_n": 10.0,
+  "mp_edge": 1.732,
+  "eigenvalues": [
+   2.928,
+   2.059,
+   0.479,
+   0.399,
+   0.078,
+   0.058
+  ],
+  "n_noise": 4,
+  "noise_share_of_variance_pct": 16.9,
+  "closest_to_edge_gap_pct": 18.83
+ },
+ "runs": {
+  "raw": {
+   "methods": {
+    "HRP": {
+     "oos_vol_pct": 2.87,
+     "cagr_pct": 0.67,
+     "sharpe": 0.233,
+     "maxdd_pct": -9.89,
+     "pred_vol_pct": 2.39,
+     "pred_over_realised": 0.832,
+     "turnover_pct_per_rebal": 3.1
+    },
+    "NCO min-var": {
+     "oos_vol_pct": 2.3,
+     "cagr_pct": 0.45,
+     "sharpe": 0.196,
+     "maxdd_pct": -8.98,
+     "pred_vol_pct": 1.79,
+     "pred_over_realised": 0.777,
+     "turnover_pct_per_rebal": 1.8
+    },
+    "IVP": {
+     "oos_vol_pct": 2.81,
+     "cagr_pct": 0.69,
+     "sharpe": 0.246,
+     "maxdd_pct": -9.81,
+     "pred_vol_pct": 2.32,
+     "pred_over_realised": 0.825,
+     "turnover_pct_per_rebal": 2.6
+    },
+    "MinVar (CLA)": {
+     "oos_vol_pct": 1.48,
+     "cagr_pct": 1.12,
+     "sharpe": 0.761,
+     "maxdd_pct": -5.06,
+     "pred_vol_pct": 0.94,
+     "pred_over_realised": 0.639,
+     "turnover_pct_per_rebal": 9.2
+    },
+    "Equal weight": {
+     "oos_vol_pct": 8.66,
+     "cagr_pct": 5.85,
+     "sharpe": 0.676,
+     "maxdd_pct": -12.84,
+     "pred_vol_pct": 8.01,
+     "pred_over_realised": 0.924,
+     "turnover_pct_per_rebal": 0.0
+    },
+    "Hand 60/40": {
+     "oos_vol_pct": 9.49,
+     "cagr_pct": 7.6,
+     "sharpe": 0.801,
+     "maxdd_pct": -13.43,
+     "pred_vol_pct": 8.96,
+     "pred_over_realised": 0.945,
+     "turnover_pct_per_rebal": 0.0
+    },
+    "Hand 25/75": {
+     "oos_vol_pct": 5.74,
+     "cagr_pct": 3.54,
+     "sharpe": 0.617,
+     "maxdd_pct": -11.65,
+     "pred_vol_pct": 5.14,
+     "pred_over_realised": 0.896,
+     "turnover_pct_per_rebal": 0.0
+    }
+   },
+   "n_oos_months": 89,
+   "refits": 8,
+   "first_oos": "2019-04",
+   "last_oos": "2026-04",
+   "tests_vs_HRP": {
+    "MinVar (CLA)": {
+     "t": 4.59,
+     "p": 0.0,
+     "vol_ratio": 1.943
+    },
+    "IVP": {
+     "t": 2.76,
+     "p": 0.007,
+     "vol_ratio": 1.02
+    },
+    "Equal weight": {
+     "t": -4.56,
+     "p": 0.0,
+     "vol_ratio": 0.331
+    },
+    "NCO min-var": {
+     "t": 4.88,
+     "p": 0.0,
+     "vol_ratio": 1.247
+    }
+   }
+  },
+  "denoised": {
+   "methods": {
+    "HRP": {
+     "oos_vol_pct": 2.83,
+     "cagr_pct": 0.72,
+     "sharpe": 0.254,
+     "maxdd_pct": -9.88,
+     "pred_vol_pct": 2.24,
+     "pred_over_realised": 0.793,
+     "turnover_pct_per_rebal": 3.7
+    },
+    "NCO min-var": {
+     "oos_vol_pct": 2.29,
+     "cagr_pct": 0.4,
+     "sharpe": 0.173,
+     "maxdd_pct": -8.77,
+     "pred_vol_pct": 1.77,
+     "pred_over_realised": 0.772,
+     "turnover_pct_per_rebal": 1.8
+    },
+    "IVP": {
+     "oos_vol_pct": 2.81,
+     "cagr_pct": 0.69,
+     "sharpe": 0.246,
+     "maxdd_pct": -9.81,
+     "pred_vol_pct": 2.28,
+     "pred_over_realised": 0.809,
+     "turnover_pct_per_rebal": 2.6
+    },
+    "MinVar (CLA)": {
+     "oos_vol_pct": 2.09,
+     "cagr_pct": -0.41,
+     "sharpe": -0.198,
+     "maxdd_pct": -7.38,
+     "pred_vol_pct": 1.4,
+     "pred_over_realised": 0.668,
+     "turnover_pct_per_rebal": 7.8
+    },
+    "Equal weight": {
+     "oos_vol_pct": 8.66,
+     "cagr_pct": 5.85,
+     "sharpe": 0.676,
+     "maxdd_pct": -12.84,
+     "pred_vol_pct": 7.88,
+     "pred_over_realised": 0.91,
+     "turnover_pct_per_rebal": 0.0
+    },
+    "Hand 60/40": {
+     "oos_vol_pct": 9.49,
+     "cagr_pct": 7.6,
+     "sharpe": 0.801,
+     "maxdd_pct": -13.43,
+     "pred_vol_pct": 8.82,
+     "pred_over_realised": 0.93,
+     "turnover_pct_per_rebal": 0.0
+    },
+    "Hand 25/75": {
+     "oos_vol_pct": 5.74,
+     "cagr_pct": 3.54,
+     "sharpe": 0.617,
+     "maxdd_pct": -11.65,
+     "pred_vol_pct": 5.14,
+     "pred_over_realised": 0.895,
+     "turnover_pct_per_rebal": 0.0
+    }
+   },
+   "n_oos_months": 89,
+   "refits": 8,
+   "first_oos": "2019-04",
+   "last_oos": "2026-04",
+   "tests_vs_HRP": {
+    "MinVar (CLA)": {
+     "t": 3.06,
+     "p": 0.003,
+     "vol_ratio": 1.352
+    },
+    "IVP": {
+     "t": 0.61,
+     "p": 0.5426,
+     "vol_ratio": 1.005
+    },
+    "Equal weight": {
+     "t": -4.58,
+     "p": 0.0,
+     "vol_ratio": 0.326
+    },
+    "NCO min-var": {
+     "t": 4.46,
+     "p": 0.0,
+     "vol_ratio": 1.233
+    }
+   }
+  }
+ }
+}

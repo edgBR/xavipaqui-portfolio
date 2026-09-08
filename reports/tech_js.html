@@ -21,7 +21,7 @@ else document.addEventListener('DOMContentLoaded',renderMath);
 window.addEventListener('load',renderMath);   // defer'd katex may land after DCL
 
 const ALL=JSON.parse(document.getElementById('data').textContent);
-const D=ALL.mc, FD=ALL.funds, ES=ALL.estim;
+const D=ALL.mc, FD=ALL.funds, ES=ALL.estim, RB=ALL.rob;
 const PORTS=Object.keys(D.portfolios);
 const PL={"58yo 60/40":"58yo 60/40","64yo 25/75":"64yo 25/75"};
 const ML={"Hand-set":"Hand-set","HRP-in-sleeves":"HRP-in-sleeves","NCO-in-sleeves":"NCO-in-sleeves",
@@ -321,6 +321,79 @@ function fanPanel(port,method,engine,maxOverride){
       h+=`<td class="${f>0?'neg':''}">${f===0?'\u2014':'\u2212'+num(drag,2)+'% of terminal'}</td>`;});
     h+='</tr>';});
   document.getElementById('platform-table').innerHTML=h+'</tbody></table>';
+})();
+
+/* ---- robustness: spectrum, denoised weights, walk-forward ---- */
+(function(){
+  const sp=RB.spectrum, wi=RB.spectrum_window;
+  let h='<table style="min-width:600px"><thead><tr><th>Sample</th><th>Assets</th><th>Months</th>'
+    +'<th>T/N</th><th>MP edge</th><th>Eigenvalues (desc)</th><th>Below edge</th>'
+    +'<th>Noise share</th></tr></thead><tbody>';
+  [['Full sample',sp],['60-month estimation window',wi]].forEach(function(row){
+    const lab=row[0], r=row[1];
+    h+='<tr><td>'+lab+'</td><td>'+r.n_assets+'</td><td>'+r.n_obs+'</td><td>'+num(r.t_over_n,1)+'</td>'
+      +'<td>'+num(r.mp_edge,3)+'</td>'
+      +'<td style="font-size:.8rem">'+r.eigenvalues.map(function(x){return num(x,3);}).join(' \u00b7 ')+'</td>'
+      +'<td class="'+(r.n_noise>r.n_assets/2?'neg':'')+'">'+r.n_noise+' of '+r.n_assets+'</td>'
+      +'<td class="'+(r.noise_share_of_variance_pct>30?'neg':'')+'">'+num(r.noise_share_of_variance_pct,1)+'%</td></tr>';
+  });
+  document.getElementById('spec-table').innerHTML=h+'</tbody></table>';
+
+  const order=RB.order, names=Object.keys(RB.weights);
+  let g='<table style="min-width:820px"><thead><tr><th>Method</th>';
+  order.forEach(function(k){ g+='<th>'+FD.funds[k].en+'</th>'; });
+  g+='<th>max |\u0394|</th></tr></thead><tbody>';
+  let worst=0;
+  names.forEach(function(n){
+    const W=RB.weights[n]; worst=Math.max(worst,W.max_abs_delta);
+    g+='<tr class="group"><td colspan="'+(order.length+2)+'">'+n+'</td></tr>';
+    [['raw','raw'],['denoised','denoised']].forEach(function(pair){
+      g+='<tr><td>'+pair[0]+'</td>';
+      order.forEach(function(k){
+        g+='<td style="'+(W[pair[1]][k]===0?'opacity:.35':'')+'">'+num(W[pair[1]][k],1)+'</td>'; });
+      g+='<td></td></tr>';
+    });
+    g+='<tr><td>change (pp)</td>';
+    order.forEach(function(k){ const d=W.delta[k];
+      g+='<td class="'+(Math.abs(d)>=1?'neg':'')+'">'+(d>0?'+':'')+num(d,2)+'</td>'; });
+    g+='<td class="neg">'+num(W.max_abs_delta,2)+'</td></tr>';
+  });
+  document.getElementById('dn-table').innerHTML=g+'</tbody></table>';
+  document.getElementById('dn-max').textContent=num(worst,1);
+
+  const WF=RB.walk_forward, runs=Object.keys(WF.runs);
+  const sel=document.getElementById('wf-run');
+  sel.innerHTML=runs.map(function(r){
+    return '<option value="'+r+'">'+(r==='raw'?'sample covariance':'denoised covariance')+'</option>'; }).join('');
+  const RISK={'HRP':1,'NCO min-var':1,'IVP':1,'MinVar (CLA)':1};
+  function drawWF(){
+    const r=WF.runs[sel.value];
+    document.getElementById('wf-n').textContent=r.n_oos_months;
+    document.getElementById('wf-span').textContent=r.first_oos+' \u2192 '+r.last_oos;
+    let t='<table style="min-width:760px"><thead><tr><th>Method</th><th>OOS vol %</th>'
+      +'<th>Pred vol %</th><th>pred/realised</th><th>CAGR %</th><th>Sharpe</th>'
+      +'<th>Max DD %</th><th>Turnover %</th></tr></thead><tbody>';
+    Object.keys(r.methods).forEach(function(k){
+      const v=r.methods[k];
+      t+='<tr class="'+(k==='HRP'?'hand':'')+'" style="'+(RISK[k]?'':'opacity:.62')+'"><td>'+k+'</td>'
+        +'<td>'+num(v.oos_vol_pct)+'</td><td>'+num(v.pred_vol_pct)+'</td>'
+        +'<td class="'+(v.pred_over_realised<0.8?'neg':'')+'">'+num(v.pred_over_realised,3)+'</td>'
+        +'<td class="'+(v.cagr_pct<0?'neg':'')+'">'+num(v.cagr_pct)+'</td><td>'+num(v.sharpe,3)+'</td>'
+        +'<td class="neg">'+num(v.maxdd_pct)+'</td><td>'+num(v.turnover_pct_per_rebal,1)+'</td></tr>';
+    });
+    document.getElementById('wf-table').innerHTML=t+'</tbody></table>';
+    let q='<table style="min-width:620px"><thead><tr><th>HRP vs</th><th>vol ratio</th>'
+      +'<th>direction</th><th>t</th><th>p</th><th>verdict</th></tr></thead><tbody>';
+    Object.keys(r.tests_vs_HRP).forEach(function(k){
+      const v=r.tests_vs_HRP[k], lower=v.vol_ratio<1;
+      q+='<tr><td>'+k+'</td><td>'+num(v.vol_ratio,3)+'</td>'
+        +'<td class="'+(lower?'':'neg')+'">'+(lower?'HRP lower':'HRP higher')+'</td>'
+        +'<td>'+(v.t>0?'+':'')+num(v.t,2)+'</td><td>'+num(v.p,4)+'</td>'
+        +'<td>'+(v.p<0.05?'significant':'not significant')+'</td></tr>';
+    });
+    document.getElementById('wf-tests').innerHTML=q+'</tbody></table>';
+  }
+  sel.addEventListener('change',drawWF); drawWF();
 })();
 
 document.getElementById('foot').innerHTML=

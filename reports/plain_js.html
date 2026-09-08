@@ -1,6 +1,6 @@
 <script>
 const ALL=JSON.parse(document.getElementById('data').textContent);
-const D=ALL.dca, FD=ALL.funds;
+const D=ALL.dca, FD=ALL.funds, CAL=ALL.calib;
 const KEYS=Object.keys(D.people);
 const CS=getComputedStyle(document.documentElement); const cv=n=>CS.getPropertyValue(n).trim();
 const SH='http://www.w3.org/2000/svg';
@@ -211,6 +211,21 @@ personBlock(KEYS[0],'p-58');personBlock(KEYS[1],'p-64');
     <b>${pct(D.meta.fwd_equity_pct)} % al año</b> y los bonos un <b>${pct(D.meta.fwd_bond_pct)} % al año</b>,
     menos la comisión de los fondos, más cerca de lo que se espera normalmente a largo plazo. Si un plan solo
     funciona cuando el pasado reciente se repite, no es un plan.</p>`;
+})();
+
+/* honesty check: the falls above come from a model fitted to past data. We tested
+   that model against what actually happened, and it was too optimistic. */
+(function(){
+  const A=CAL[KEYS[0]], B=CAL[KEYS[1]];
+  document.getElementById('calib').innerHTML=
+    '<b>Y una advertencia sobre estas caídas: probablemente son suaves de más.</b> '
+    +'Las cifras de arriba salen de un modelo ajustado al pasado. Comprobamos ese modelo '
+    +'contra lo que de verdad pasó entre 2019 y 2026, y en los dos casos se quedó corto: '
+    +'el vaivén real fue un <b>'+num(A.understated_pct,0)+' % mayor</b> de lo previsto para la '
+    +'mezcla de la persona de 58 años, y un <b>'+num(B.understated_pct,0)+' % mayor</b> para la de 64. '
+    +'No es un error de cálculo, es lo normal: un modelo aprende del pasado y el futuro siempre '
+    +'trae algo que no estaba ahí. Lea las caídas de arriba como <b>el mínimo que hay que estar '
+    +'dispuesto a aguantar</b>, no como el máximo.';
 })();
 
 document.getElementById('foot').textContent=

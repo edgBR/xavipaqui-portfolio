@@ -197,6 +197,61 @@
 
 <section>
   <div class="shead">
+    <span class="eyebrow">Robustness · denoising</span>
+    <h2>The step this report skips, and what it would change.</h2>
+    <p>For NCO, López de Prado prescribes <b>denoising the correlation matrix before clustering</b> — separating noise-induced from signal-induced instability by shrinking the random part of the spectrum. The headline figures on this page do not do this. Rather than bury that, here is the diagnostic and the size of the effect.</p>
+  </div>
+  <div class="figure">
+    <div class="figure-head"><h3>Eigenvalue spectrum against the Marchenko–Pastur noise edge</h3></div>
+    <div class="tablewrap" id="spec-table" style="margin-top:0;border:none;box-shadow:none"></div>
+    <p class="caption"><b>Why the answer is genuinely ambiguous at this size.</b> Marchenko–Pastur is an <em>asymptotic</em> result — it assumes the number of assets and observations both grow at a fixed ratio, so that a dense "bulk" of noise eigenvalues separates cleanly from the signal. With six assets there is no bulk to speak of. Only one eigenvalue clears the edge on the full sample, so the criterion labels 40 % of total variance as noise; and the second eigenvalue lands within <b>0.67 %</b> of the threshold, meaning which side of the line it falls on is effectively arbitrary. López de Prado's own procedure fits the noise variance by matching a kernel density estimate of the spectrum to the MP density, which is not a meaningful fit at N = 6, so the analytic σ² = 1 edge is used here instead.</p>
+  </div>
+  <div class="figure">
+    <div class="figure-head"><h3>Weights with and without denoising (%, and the change in percentage points)</h3></div>
+    <div class="tablewrap" id="dn-table" style="margin-top:0;border:none;box-shadow:none"></div>
+    <p class="caption"><b>It is not a rounding effect.</b> Denoising moves individual weights by up to <span id="dn-max"></span> percentage points — the same order as, and in one case several times larger than, the differences between the weighting methods that this report spends its length comparing. So the weights shown elsewhere are one defensible choice of two, not the only one. Which is better is not answerable from the matrix itself; it needs the out-of-sample test below.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <span class="eyebrow">Robustness · out-of-sample</span>
+    <h2>The test his papers actually run — and it does not reproduce here.</h2>
+    <p>His evidence for HRP is not about returns. It is that HRP delivers <b>lower out-of-sample variance</b> than a quadratic optimiser (CLA / minimum-variance) and than the inverse-variance portfolio, <em>despite minimum-variance being CLA's own objective</em>. Nothing else in this project tests that: the weights table is in-sample and the Monte Carlo is a forward projection. <span class="mono">walk_forward.py</span> does.</p>
+    <p><b>Design.</b> Estimate Σ on a rolling 60-month window, take each method's weights, hold them 12 months rebalancing monthly to those weights, roll forward. Eight refits, <span id="wf-n"></span> out-of-sample months (<span id="wf-span"></span>). Every method sees identical dates, so all comparisons are paired.</p>
+  </div>
+  <div class="figure">
+    <div class="figure-head">
+      <h3>Realised out-of-sample behaviour</h3>
+      <div class="controls" style="margin:0;padding:0;background:none">
+        <label>Covariance <select id="wf-run"></select></label>
+      </div>
+    </div>
+    <div class="tablewrap" id="wf-table" style="margin-top:0;border:none;box-shadow:none"></div>
+    <p class="caption">The comparison is only like-for-like among the four <b>risk-only</b> methods — HRP, NCO, IVP and MinVar all target a risk objective with no return input. <b>Equal weight</b> and the two hand-set rows are shown for context but carry far more equity, so their higher volatility is a consequence of that choice, not of estimation quality.</p>
+  </div>
+  <div class="figure">
+    <div class="figure-head"><h3>Paired variance tests, HRP against each alternative</h3></div>
+    <div class="tablewrap" id="wf-tests" style="margin-top:0;border:none;box-shadow:none"></div>
+    <p class="caption">Testing <span class="tex" data-tex="H_0:\ \operatorname{Var}(r_{\mathrm{HRP}}) = \operatorname{Var}(r_{\mathrm{alt}})">H0: Var(r_HRP) = Var(r_alt)</span> on the differenced squared returns. Pairing on dates removes the shared market component, which makes this far more powerful than comparing two volatilities independently — it is why these tests reach significance on 89 months when the <em>return</em> comparisons earlier could not.</p>
+  </div>
+  <div class="prose">
+    <h3>Reading the result honestly</h3>
+    <p><b>On the headline claim, this test goes the other way.</b> HRP's out-of-sample volatility is 2.87 % against minimum-variance's 1.48 % — HRP is <b>1.94× higher</b>, with p &lt; 0.0001. Against IVP, HRP is 1.020× higher: statistically significant at p = 0.007 but negligible in size. The 2016 paper reports the opposite ordering.</p>
+    <p>Three reasons to treat that as a limitation of <em>this setup</em> rather than a refutation:</p>
+    <div class="deflist">
+      <div><b>The regime is the one least favourable to the claim</b><span>T/N is 10 inside the estimation window, with six assets. The Markowitz curse HRP exists to defeat bites hardest when the asset count is large and T/N approaches 1, because that is when <span class="tex" data-tex="\hat{\Sigma}^{-1}">Σ̂⁻¹</span> becomes explosive. At six assets it is well conditioned, so minimum-variance is simply not handicapped here. His experiments use many more assets and worse conditioning.</span></div>
+      <div><b>One regime, eight refits</b><span>89 out-of-sample months covering COVID and the 2022 bond rout. That is a single macro episode, not a sample of episodes, and eight weight vectors is a small number of independent decisions.</span></div>
+      <div><b>A low volatility number is not the whole objective</b><span>Minimum-variance achieved its low realised volatility with 9.2 % turnover per rebalance against HRP's 3.1 %, and once the covariance is denoised its realised return turns <b>negative</b> (−0.41 %/yr) while HRP's improves slightly. A solution that inverts <span class="tex" data-tex="\hat{\Sigma}">Σ̂</span> and cannot survive a mild perturbation of its input is exactly the fragility the paper describes, even where the realised variance came out lower.</span></div>
+    </div>
+    <p><b>His secondary argument does hold up.</b> Minimum-variance is the highest-turnover method, the most sensitive to denoising, and the worst-calibrated on risk — its predicted volatility is only 0.639 of what it realised, a 36 % understatement. HRP and IVP sit around 0.83, and the fixed-weight portfolios, which estimate nothing, are the best calibrated at 0.93–0.95. The ranking of <em>stability</em> is his ranking, even though the ranking of realised variance is not.</p>
+    <h3>What this test can answer, and the answer is uncomfortable</h3>
+    <p>Return rankings need centuries of data. A <em>risk</em> forecast does not, which is why this test is worth running at all. And it says: <b>every method understated its own volatility</b>, with predicted-over-realised ratios from 0.64 to 0.95, and <b>the more optimisation went into the weights, the worse the understatement</b>. That applies directly to the rest of this page: every volatility, every drawdown and every <span class="mono">P(real loss)</span> figure elsewhere is calibrated on in-sample covariance and should be read as optimistic — by roughly 5–7 % relative for the hand-set allocations, and by considerably more for the optimised ones.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
     <span class="eyebrow">Column definitions</span>
     <h2>What every column in every table means.</h2>
     <p>Percentiles are taken across the 20,000 simulated paths, so "p5" is the value only 5 % of paths came in below — a bad case, not a worst case.</p>
@@ -241,6 +296,15 @@
       <div><b>fwd median, net</b><span>The forward-engine median IRR after that charge is deducted — the number the charge column actually moves.</span></div>
       <div><b>cost over Ny</b><span>Cumulative drag on terminal value, <span class="tex" data-tex="1-(1-c)^{N}">1−(1−charge)^N</span>. A 0.109 %/yr charge over 32 years costs 3.43 % of the final pot.</span></div>
       <div><b>Added platform fee</b><span>Hypothetical custody charge on top of the fund charges, currently modelled as zero. Shown to size what a platform that does charge would cost.</span></div>
+    </div>
+
+    <h3>Robustness tables</h3>
+    <div class="deflist">
+      <div><b>λ (eigenvalue) · MP edge</b><span>Eigenvalues of the correlation matrix, which sum to the number of assets. The Marchenko–Pastur edge is the largest eigenvalue a pure-noise matrix of this shape would typically produce; anything below it is statistically indistinguishable from noise.</span></div>
+      <div><b>OOS vol %</b><span>Realised annualised volatility of the out-of-sample return stream. This is López de Prado's headline metric.</span></div>
+      <div><b>Pred vol % · pred/realised</b><span>Volatility the estimated covariance predicted at each refit, and its ratio to what actually happened. Below 1 means the model understated its own risk.</span></div>
+      <div><b>Turnover %</b><span>Half the sum of absolute weight changes at each rebalance — the fraction of the portfolio that has to be traded. Fixed-weight rows are 0 by construction.</span></div>
+      <div><b>vol ratio · t · p</b><span>Ratio of HRP's realised volatility to the alternative's, and the paired t-test on differenced squared returns. p below 0.05 means the variance difference is unlikely to be sampling noise.</span></div>
     </div>
 
     <h3>Weights-by-method table</h3>
