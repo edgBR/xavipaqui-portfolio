@@ -13,22 +13,49 @@ to the choice among the weighting methods.
 
 ## Reports
 
-The two reports are the output of this repository. Both are published as private
-Artifacts on claude.ai — visible to the account that owns them, and shareable from
-the page's own share menu.
+The two reports are the output of this repository. Both are committed, so they open
+from a fresh clone with no build step:
 
-| Report | Audience | Link |
+| Report | Audience | File |
 | --- | --- | --- |
-| **Two Retirements, Five Methods** (English) | Technical. Assumes statistics and mathematics, assumes no finance. | <https://claude.ai/code/artifact/a920fcdf-eacc-4c27-a4f6-e1b5d8aa03d4> |
-| **Seiscientos al Mes** (Spanish) | Plain language, no jargon, every term defined. Written for the person whose money it is. | <https://claude.ai/code/artifact/a67529b2-69c1-4c89-acaf-df4efa6cc6ba> |
+| **Two Retirements, Five Methods** (English) | Technical. Assumes statistics and mathematics; assumes no finance. | [`reports/portfolio_mc.html`](reports/portfolio_mc.html) |
+| **Seiscientos al Mes** (Spanish) | Plain language, no jargon, every term defined. Written for the person whose money it is. | [`reports/savings_plan.html`](reports/savings_plan.html) |
 
-The same files are generated locally and committed, so they can be opened in a
-browser without network access:
+Each report is a single HTML file with its data, charts and stylesheet embedded.
+Open one directly in a browser:
 
+```bash
+open reports/portfolio_mc.html          # macOS
+xdg-open reports/portfolio_mc.html      # Linux
+start reports\portfolio_mc.html         # Windows
 ```
-reports/portfolio_mc.html     # English technical report
-reports/savings_plan.html     # Spanish savings-plan report
+
+GitHub does not render HTML stored in a repository, so the table links above show
+source rather than the report. To read them from a clone, open the file as above, or
+serve the directory and use the browser:
+
+```bash
+python -m http.server -d reports 8000
+# http://localhost:8000/portfolio_mc.html
+# http://localhost:8000/savings_plan.html
 ```
+
+If the reports need to be shareable by link, publish `reports/` with GitHub Pages
+(*Settings → Pages*, source `/reports` on the default branch); the files are static
+and need no build.
+
+### Offline behaviour
+
+Both reports are fully usable with no network connection: every chart, table and
+figure is generated from data embedded in the file itself. Two things degrade
+gracefully rather than breaking:
+
+- **Equations** — the technical report typesets them with KaTeX loaded from a CDN. With
+  no network they fall back to the readable ASCII kept in the page, so
+  `d = √((1−ρ)/2)` appears in place of the typeset version.
+- **Fonts** — both reports request their webfonts from Google Fonts and substitute
+  system serif, sans and monospace faces when unavailable. The KaTeX maths fonts are
+  embedded in the file, not fetched.
 
 ### What each report contains
 
