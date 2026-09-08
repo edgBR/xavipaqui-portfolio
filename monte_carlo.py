@@ -150,7 +150,12 @@ def irr_annual(w0: float, contrib: float, contrib_months: int, wp: dict,
         out = -w0
         if contrib and contrib_months:
             n = contrib_months
-            a = np.where(np.abs(i) < 1e-12, float(n), (1.0 - v ** n) * (1.0 + i) / i)
+            # np.where evaluates BOTH branches, so guard the denominator or the
+            # near-zero rate raises "invalid value encountered in divide" and the
+            # discarded branch fills with NaN
+            near0 = np.abs(i) < 1e-12
+            i_safe = np.where(near0, 1.0, i)
+            a = np.where(near0, float(n), (1.0 - v ** n) * (1.0 + i) / i_safe)
             out = out - contrib * a
         for amt, m in zip(wp["wd_amounts"], wp["wd_months"]):
             out = out + amt * v ** m

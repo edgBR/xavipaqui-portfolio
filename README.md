@@ -13,8 +13,10 @@ to the choice among the weighting methods.
 
 ## Reports
 
-The two reports are the output of this repository. Both are committed, so they open
-from a fresh clone with no build step:
+The two reports are the output of this repository. They are published at
+**<https://edgbr.github.io/xavipaqui-portfolio/>**, rebuilt and deployed on every push
+to `master`, and are also committed so they open straight from a clone with no build
+step:
 
 | Report | Audience | File |
 | --- | --- | --- |
@@ -40,9 +42,23 @@ python -m http.server -d reports 8000
 # http://localhost:8000/savings_plan.html
 ```
 
-If the reports need to be shareable by link, publish `reports/` with GitHub Pages
-(*Settings → Pages*, source `/reports` on the default branch); the files are static
-and need no build.
+### Publishing
+
+`.github/workflows/pages.yml` rebuilds the analysis from the committed
+`navs_monthly.csv` and deploys three files — `index.html` and the two reports — to
+GitHub Pages. To enable it once, set *Settings → Pages → Source* to **GitHub Actions**.
+
+The workflow deliberately does **not** run `fetch_navs.py`: that scrapes external
+providers and needs Chrome for the Morningstar fallback. Everything downstream of
+`navs_monthly.csv` is deterministic — fixed RNG seeds, versions pinned by `uv.lock` —
+so rebuilding in CI is a real check that the committed data and the published reports
+agree. A step reports any drift between the freshly built reports and the committed
+ones in the run summary; Pages serves what CI built, so drift is informational rather
+than a failure. Refresh the NAV history locally and commit the result.
+
+Only `reports/index.html`, `reports/portfolio_mc.html` and `reports/savings_plan.html`
+are staged for deployment. The HTML templates, the NAV history and the intermediate
+JSON are never published.
 
 ### Offline behaviour
 

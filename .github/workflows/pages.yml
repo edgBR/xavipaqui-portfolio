@@ -1,0 +1,111 @@
+# Rebuild the reports from committed data and publish them to GitHub Pages.
+#
+# The build is deliberately network-free: fetch_navs.py is NOT run here, because it
+# scrapes external providers and needs Chrome for the Morningstar fallback. Everything
+# downstream of navs_monthly.csv is deterministic (fixed RNG seeds, versions pinned by
+# uv.lock), so CI rebuilding it is a genuine check that the committed data and the
+# published reports agree. Refresh the NAV history locally and commit it.
+name: Build and deploy reports to Pages
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - "reports/**"
+      - "*.py"
+      - "navs_monthly.csv"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel an in-progress deployment; queue behind it instead.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install locked dependencies
+        run: uv sync --locked
+
+      - name: Rebuild analysis and reports
+        run: |
+          set -euo pipefail
+          uv run --locked python monte_carlo.py
+          uv run --locked python monte_carlo_dca.py
+          uv run --locked python build_funds_meta.py
+          uv run --locked python build_estim.py
+          uv run --locked python walk_forward.py
+          uv run --locked python build_robustness.py
+          uv run --locked python build_reports.py
+
+      - name: Report drift against the committed reports
+        run: |
+          if git diff --quiet -- reports/portfolio_mc.html reports/savings_plan.html; then
+            echo "committed reports match a clean rebuild" >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "### Committed reports differ from a clean rebuild"
+              echo ""
+              echo "Pages serves the freshly built output, so this is informational."
+              echo "Run \`python build_reports.py\` locally and commit to keep them in step."
+              echo ""
+              git diff --stat -- reports/portfolio_mc.html reports/savings_plan.html
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Stage the site
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          # only the landing page and the two reports -- never the templates,
+          # the raw NAV history or the intermediate JSON
+          cp reports/index.html reports/portfolio_mc.html reports/savings_plan.html _site/
+          test -s _site/index.html && test -s _site/portfolio_mc.html && test -s _site/savings_plan.html
+          {
+            echo "### Site staged"
+            echo ""
+            echo '| File | Size |'
+            echo '| --- | --- |'
+            for f in _site/*.html; do
+              printf '| `%s` | %s |\n' "$(basename "$f")" "$(du -h "$f" | cut -f1)"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "_site"
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
