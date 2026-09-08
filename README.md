@@ -13,33 +13,28 @@ to the choice among the weighting methods.
 
 ## Reports
 
-The two reports are the output of this repository. They are published at
-**<https://edgbr.github.io/xavipaqui-portfolio/>**, rebuilt and deployed on every push
-to `master`, and are also committed so they open straight from a clone with no build
-step:
+The two reports are the output of this repository, published at
+**<https://edgbr.github.io/xavipaqui-portfolio/>** and rebuilt on every push to `master`.
 
-| Report | Audience | File |
+| Report | Read online | In this repository |
 | --- | --- | --- |
-| **Two Retirements, Five Methods** (English) | Technical. Assumes statistics and mathematics; assumes no finance. | [`reports/portfolio_mc.html`](reports/portfolio_mc.html) |
-| **Seiscientos al Mes** (Spanish) | Plain language, no jargon, every term defined. Written for the person whose money it is. | [`reports/savings_plan.html`](reports/savings_plan.html) |
+| **Two Retirements, Five Methods** — English, technical. Assumes statistics and mathematics; assumes no finance. | [Open report ↗](https://edgbr.github.io/xavipaqui-portfolio/portfolio_mc.html) | [`reports/portfolio_mc.html`](reports/portfolio_mc.html) |
+| **Seiscientos al Mes** — Spanish, plain language. No jargon, every term defined. Written for the person whose money it is. | [Abrir informe ↗](https://edgbr.github.io/xavipaqui-portfolio/savings_plan.html) | [`reports/savings_plan.html`](reports/savings_plan.html) |
 
-Each report is a single HTML file with its data, charts and stylesheet embedded.
-Open one directly in a browser:
+Direct links: [https://edgbr.github.io/xavipaqui-portfolio/portfolio_mc.html](https://edgbr.github.io/xavipaqui-portfolio/portfolio_mc.html) ·
+[https://edgbr.github.io/xavipaqui-portfolio/savings_plan.html](https://edgbr.github.io/xavipaqui-portfolio/savings_plan.html)
+
+Both are also committed, because GitHub renders HTML stored in a repository as source
+rather than as a page — so the third column is for reading a clone offline, not in the
+browser. Each report is a single self-contained file:
 
 ```bash
 open reports/portfolio_mc.html          # macOS
 xdg-open reports/portfolio_mc.html      # Linux
 start reports\portfolio_mc.html         # Windows
-```
 
-GitHub does not render HTML stored in a repository, so the table links above show
-source rather than the report. To read them from a clone, open the file as above, or
-serve the directory and use the browser:
-
-```bash
-python -m http.server -d reports 8000
-# http://localhost:8000/portfolio_mc.html
-# http://localhost:8000/savings_plan.html
+# or serve the directory, which also gives you the landing page
+python -m http.server -d reports 8000   # http://localhost:8000
 ```
 
 ### Publishing
